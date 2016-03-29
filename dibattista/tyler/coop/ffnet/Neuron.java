@@ -8,15 +8,17 @@ import java.util.List;
  */
 public class Neuron {
 
+    private int id;
     private double value;
     private double activatedValue;
     List<Connection> connections;
     boolean activated = false;
 
     //initialize a neuron with a list of connections and default value of 0
-    public Neuron(){
+    public Neuron(int innovationNumber){
         connections = new ArrayList<Connection>();
         value = 0;
+        id = innovationNumber;
     }
 
     //create a connection starting from this neuron to another one with a certain weight

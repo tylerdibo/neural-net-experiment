@@ -8,11 +8,13 @@ public class Connection {
     Neuron in;
     Neuron out;
     double weight;
+    boolean active;
 
     public Connection(Neuron in, Neuron out, double weight){
         this.in = in;
         this.out = out;
         this.weight = weight;
+        active = true;
     }
 
 }
