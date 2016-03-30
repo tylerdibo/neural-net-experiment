@@ -11,7 +11,7 @@ public class NeatMain {
 
     static int innovationNumber = 0;
 
-    public static final float CONNECTION_CHANCE = 0.5f;
+    public static final float CONNECTION_CHANCE = 0.1d;
 
     public static void main(String[] inputs) {
 
@@ -35,6 +35,10 @@ public class NeatMain {
     //TODO: function to decide which mutation and everything else
     public void mutate(){
         innovationNumber++;
+        double random = Math.random();
+        if(random < CONNECTION_CHANCE){
+            mAddConnection();
+        }
     }
 
     //TODO: compare with other innovations to check if matching
