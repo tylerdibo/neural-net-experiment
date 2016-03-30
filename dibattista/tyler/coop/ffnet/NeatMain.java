@@ -11,7 +11,8 @@ public class NeatMain {
 
     static int innovationNumber = 0;
 
-    public static final float CONNECTION_CHANCE = 0.1d;
+    public static final double ADD_CONNECTION_CHANCE = 0.1d;
+    public static final double ADD_NODE_CHANCE = 0.1d;
 
     public static void main(String[] inputs) {
 
@@ -36,8 +37,12 @@ public class NeatMain {
     public void mutate(){
         innovationNumber++;
         double random = Math.random();
-        if(random < CONNECTION_CHANCE){
-            mAddConnection();
+        if(random < ADD_CONNECTION_CHANCE){
+            mAddConnection(NeuronList.getRandom(), NeuronList.getRandom());
+        }else if(random < ADD_CONNECTION_CHANCE + ADD_NODE_CHANCE){
+            mAddNeuron();
+        }else{
+            mConnectionWeights();
         }
     }
 

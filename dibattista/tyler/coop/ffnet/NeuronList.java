@@ -17,5 +17,17 @@ public final class NeuronList {
     public static void addNeuron(int innov){
         allNeurons.add(new Neuron(innov));
     }
+    
+    public static Neuron getNeuron(int id){
+        return allNeurons.get(id);
+    }
+    
+    public static int getTotal(){
+        return allNeurons.size();
+    }
+    
+    public static Neuron getRandom(){
+        return allNeurons.get(Random.nextInt(allNeurons.size()));
+    }
 
 }
