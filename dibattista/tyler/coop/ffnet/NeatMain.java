@@ -28,6 +28,7 @@ public class NeatMain {
         }
 
 
+        
 
         System.out.println("Time elapsed in ns: " + (System.nanoTime()-startTime));
 
@@ -40,7 +41,7 @@ public class NeatMain {
         if(random < ADD_CONNECTION_CHANCE){
             mAddConnection(NeuronList.getRandom(), NeuronList.getRandom());
         }else if(random < ADD_CONNECTION_CHANCE + ADD_NODE_CHANCE){
-            mAddNeuron();
+            mAddNeuron(NeuronList.getRandom());
         }else{
             mConnectionWeights();
         }
@@ -52,13 +53,13 @@ public class NeatMain {
         conn.active = false;
 
         Neuron newNeuron = new Neuron(innovationNumber);
-        conn.out.addConnection(newNeuron, Math.random()); //TODO: more accurate random function?
-        newNeuron.addConnection(conn.in, Math.random());
+        conn.out.addConnection(newNeuron, Math.random(), innovationNumber); //TODO: more accurate random function?
+        newNeuron.addConnection(conn.in, Math.random(), innovationNumber);
     }
 
     public void mAddConnection(Neuron n1, Neuron n2){
         //add a new connection between two random neurons
-        n2.addConnection(n1, Math.random()); //TODO: determine which is on an inferior layer
+        n2.addConnection(n1, Math.random(), innovationNumber); //TODO: determine which is on an inferior layer
     }
 
     public void mConnectionWeights(Connection conn){

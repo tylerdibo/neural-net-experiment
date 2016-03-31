@@ -16,6 +16,12 @@ public final class NeuronList {
         allNeurons = new ArrayList<Neuron>();
     }
 
+    public static void addNeuron(int innov, Neuron neuron){
+        if(neuron.getId() != innov)
+            return;
+        allNeurons.add(neuron);
+    }
+    
     public static void addNeuron(int innov){
         allNeurons.add(new Neuron(innov));
     }

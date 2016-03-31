@@ -22,8 +22,8 @@ public class Neuron {
     }
 
     //create a connection starting from this neuron to another one with a certain weight
-    public void addConnection(Neuron input, double weight){
-        connections.add(new Connection(input, this, weight));
+    public void addConnection(Neuron input, double weight, int innovationNumber){
+        connections.add(new Connection(input, this, weight, innovationNumber));
     }
 
     //multiply the value by the weight to add to the connected neurons
@@ -57,6 +57,10 @@ public class Neuron {
 
     public double getActivatedValue() {
         return activatedValue;
+    }
+    
+    public int getId(){
+        return id;
     }
 
 }
