@@ -2,6 +2,8 @@ package dibattista.tyler.coop.ffnet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by Tyler on 30/03/2016.
@@ -27,7 +29,7 @@ public final class NeuronList {
     }
     
     public static Neuron getRandom(){
-        return allNeurons.get(Random.nextInt(allNeurons.size()));
+        return allNeurons.get(ThreadLocalRandom.current().nextInt(allNeurons.size()));
     }
 
 }
