@@ -9,13 +9,16 @@ public class Connection {
     Neuron out;
     double weight;
     boolean active;
-    int innovation;
+    boolean isRecurrent;
+    boolean timeDelay;
+    int innovationNum;
+    double mutationNum;
 
     public Connection(Neuron in, Neuron out, double weight, int innovation){
         this.in = in;
         this.out = out;
         this.weight = weight;
-        this.innovation = innovation;
+        innovationNum = innovation;
         active = true;
     }
 

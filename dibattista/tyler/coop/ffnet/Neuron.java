@@ -11,6 +11,8 @@ public class Neuron {
     private int id;
     private double value;
     private double activatedValue;
+    private double lastActivatedValue;
+    
     List<Connection> connections;
     boolean activated = false;
 
