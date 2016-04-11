@@ -12,6 +12,12 @@ public class Neuron {
     private double value;
     private double activatedValue;
     private double lastActivatedValue;
+
+    public enum NeuronTypes{
+        INPUT, HIDDEN, OUTPUT, BIAS
+    }
+
+    public NeuronTypes type;
     
     List<Connection> connections;
     boolean activated = false;

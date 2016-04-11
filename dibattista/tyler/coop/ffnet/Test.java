@@ -1,15 +1,22 @@
+import dibattista.tyler.coop.ffnet.Connection;
+import dibattista.tyler.coop.ffnet.Genome;
+import dibattista.tyler.coop.ffnet.Innovation;
+import dibattista.tyler.coop.ffnet.Neuron;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Test{
     
     public static void main(String[] args){
-        int total = 0;
-        for(int i = 1; i < 21; i++){
-            if(Math.random() < 0.3){
-                continue;
-            }
-            total++;
-            System.out.println(i);
+        Genome geno = new Genome();
+        geno.links.add(new Connection(new Neuron(0), new Neuron(1), 2.0, 2));
+        List<Innovation> innovs = new ArrayList<Innovation>();
+
+        for(int i = 0; i < 10; i++){
+            geno.mAddNeuron(innovs);
         }
-        System.out.println("Total: " + total);
+
     }
     
 }
