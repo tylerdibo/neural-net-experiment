@@ -34,6 +34,10 @@ public class Neuron {
         connections.add(new Connection(input, this, weight, innovationNumber));
     }
 
+    public void addConnection(Connection conn){
+        connections.add(conn);
+    }
+
     //multiply the value by the weight to add to the connected neurons
     public void calculate(){
         for(Connection c : connections){

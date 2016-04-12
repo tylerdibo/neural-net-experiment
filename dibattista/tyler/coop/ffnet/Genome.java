@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Genome{
-    
+
+    static final int MAX_ADD_NEURON_TRIES = 20;
+    static final double ADD_NEURON_OLD_BIAS = 0.3;
     static int innovationNumber = 1;
 
     public List<Neuron> inputNeurons;
@@ -31,7 +33,6 @@ public class Genome{
         return outputValues;
     }
     
-        //TODO: compare with other innovations to check if matching
     public void mAddNeuron(List<Innovation> innovs){
         //take connection and put neuron between
         
@@ -40,16 +41,16 @@ public class Genome{
         int tries = 0;
         boolean found = false;
         
-        if (links.size() < 15){ //TODO: recheck this
+        if (links.size() < 15){
             for(Connection c : links){
-                if(c.in.type == Neuron.NeuronTypes.BIAS || !c.active || (Math.random() < 0.3)){
-                    continue;
+                if(c.in.type != Neuron.NeuronTypes.BIAS && c.active && (Math.random() > ADD_NEURON_OLD_BIAS)) { //TODO: more accurate random function?
+                    conn = c;
+                    found = true;
+                    break;
                 }
-                conn = c;
-                found = true;
             }
         }else{
-            while(tries < 20){
+            while(tries < MAX_ADD_NEURON_TRIES){
                 Connection c = links.get(ThreadLocalRandom.current().nextInt(links.size()));
                 if((c.in.type != Neuron.NeuronTypes.BIAS) || !c.active){
                     conn = c;
@@ -66,20 +67,28 @@ public class Genome{
         conn.active = false;
 
         boolean sameInnov = false;
-        for(Innovation i : innovs){
+        for(Innovation i : innovs){ //TODO: maybe create the connections after, and just log when its the same innov
             if((i.type == Innovation.InnovType.NEWNODE) && (i.inNodeId == conn.in.getId()) && (i.outNodeId == conn.out.getId()) && (i.oldLinkInnov == conn.innovationNum)){
                 sameInnov = true;
+
                 Neuron newNeuron = new Neuron(innovationNumber);
-                conn.out.addConnection(newNeuron, conn.weight, innovationNumber); //TODO: more accurate random function?
-                newNeuron.addConnection(conn.in, 1.0, innovationNumber); //TODO: maybe make addConnection return the Connection then add that to a list here
+
+                Connection connNewToOut = new Connection(newNeuron, conn.out, conn.weight, innovationNumber);
+                links.add(connNewToOut);
+                conn.out.addConnection(connNewToOut);
+
+                Connection connInToNew = new Connection(conn.in, newNeuron, 1.0, innovationNumber);
+                links.add(connInToNew);
+                newNeuron.addConnection(connInToNew);
+                hiddenNeurons.add(newNeuron);
                 break;
             }
         }
         if(!sameInnov) {
             Neuron newNeuron = new Neuron(innovationNumber);
-            conn.out.addConnection(newNeuron, conn.weight, innovationNumber); //TODO: more accurate random function?
+            conn.out.addConnection(newNeuron, conn.weight, innovationNumber);
             newNeuron.addConnection(conn.in, 1.0, innovationNumber);
-
+            hiddenNeurons.add(newNeuron);
         }
     }
 

@@ -10,7 +10,8 @@ public class Test{
     
     public static void main(String[] args){
         Genome geno = new Genome();
-        geno.links.add(new Connection(new Neuron(0), new Neuron(1), 2.0, 2));
+        Connection conn = new Connection(new Neuron(0), new Neuron(1), 2.0, 2);
+        geno.links.add(conn);
         List<Innovation> innovs = new ArrayList<Innovation>();
 
         for(int i = 0; i < 10; i++){
