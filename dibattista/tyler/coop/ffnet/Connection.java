@@ -11,10 +11,10 @@ public class Connection {
     boolean active;
     boolean isRecurrent;
     boolean timeDelay;
-    int innovationNum;
+    double innovationNum;
     double mutationNum;
 
-    public Connection(Neuron in, Neuron out, double weight, int innovation){
+    public Connection(Neuron in, Neuron out, double weight, double innovation){
         this.in = in;
         this.out = out;
         this.weight = weight;

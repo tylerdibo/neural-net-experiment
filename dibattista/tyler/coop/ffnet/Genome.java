@@ -52,7 +52,7 @@ public class Genome{
         }else{
             while(tries < MAX_ADD_NEURON_TRIES){
                 Connection c = links.get(ThreadLocalRandom.current().nextInt(links.size()));
-                if((c.in.type != Neuron.NeuronTypes.BIAS) || !c.active){
+                if((c.in.type != Neuron.NeuronTypes.BIAS) && c.active){
                     conn = c;
                     found = true;
                     break;
@@ -73,27 +73,41 @@ public class Genome{
 
                 Neuron newNeuron = new Neuron(innovationNumber);
 
-                Connection connNewToOut = new Connection(newNeuron, conn.out, conn.weight, innovationNumber);
+                Connection connNewToOut = new Connection(newNeuron, conn.out, conn.weight, i.innovNum2);
                 links.add(connNewToOut);
                 conn.out.addConnection(connNewToOut);
 
-                Connection connInToNew = new Connection(conn.in, newNeuron, 1.0, innovationNumber);
+                Connection connInToNew = new Connection(conn.in, newNeuron, 1.0, i.innovNum1);
                 links.add(connInToNew);
                 newNeuron.addConnection(connInToNew);
+                
                 hiddenNeurons.add(newNeuron);
                 break;
             }
         }
         if(!sameInnov) {
             Neuron newNeuron = new Neuron(innovationNumber);
-            conn.out.addConnection(newNeuron, conn.weight, innovationNumber);
-            newNeuron.addConnection(conn.in, 1.0, innovationNumber);
+            
+            Connection connNewToOut = new Connection(newNeuron, conn.out, conn.weight, innovationNumber);
+            links.add(connNewToOut);
+            conn.out.addConnection(connNewToOut);
+
+            Connection connInToNew = new Connection(conn.in, newNeuron, 1.0, innovationNumber);
+            links.add(connInToNew);
+            newNeuron.addConnection(connInToNew);
+            
             hiddenNeurons.add(newNeuron);
         }
     }
 
-    public void mAddConnection(Neuron n1, Neuron n2){
+    public void mAddConnection(List<Innovation> innovs, int tries){
         //add a new connection between two random neurons
+        int nodeId1, nodeId2;
+        
+        for(int i = 0; i < tries; i++){
+            nodeId1 = ThreadLocalRandom.current().nextInt(hiddenNeurons.size());
+        }
+        
         n2.addConnection(n1, Math.random(), innovationNumber); //TODO: determine which is on an inferior layer
     }
 
