@@ -7,8 +7,10 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Genome{
 
     static final int MAX_ADD_NEURON_TRIES = 20;
+    static final int SMALL_GENOME_LIMIT = 15;
     static final double ADD_NEURON_OLD_BIAS = 0.3;
-    static int innovationNumber = 1;
+
+    private int innovationNumber;
 
     public List<Neuron> inputNeurons;
     public List<Neuron> hiddenNeurons;
@@ -22,6 +24,7 @@ public class Genome{
         outputNeurons = new ArrayList<Neuron>();
         hiddenNeurons = new ArrayList<Neuron>();
         links = new ArrayList<Connection>();
+        innovationNumber = 1;
     }
     
     public List<Double> calculate(){
@@ -41,7 +44,7 @@ public class Genome{
         int tries = 0;
         boolean found = false;
         
-        if (links.size() < 15){
+        if (links.size() < SMALL_GENOME_LIMIT){
             for(Connection c : links){
                 if(c.in.type != Neuron.NeuronTypes.BIAS && c.active && (Math.random() > ADD_NEURON_OLD_BIAS)) { //TODO: more accurate random function?
                     conn = c;
@@ -108,7 +111,7 @@ public class Genome{
             nodeId1 = ThreadLocalRandom.current().nextInt(hiddenNeurons.size());
         }
         
-        n2.addConnection(n1, Math.random(), innovationNumber); //TODO: determine which is on an inferior layer
+        //n2.addConnection(n1, Math.random(), innovationNumber); //TODO: determine which is on an inferior layer
     }
 
     public void mConnectionWeights(Connection conn){
