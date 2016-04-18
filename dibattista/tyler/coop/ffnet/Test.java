@@ -1,7 +1,4 @@
-import dibattista.tyler.coop.ffnet.Connection;
-import dibattista.tyler.coop.ffnet.Genome;
-import dibattista.tyler.coop.ffnet.Innovation;
-import dibattista.tyler.coop.ffnet.Neuron;
+package dibattista.tyler.coop.ffnet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,9 +8,12 @@ public class Test{
     
     public static void main(String[] args){
         Test2();
+        Test3();
     }
 
     static void Test1(){
+        long startTime = System.nanoTime();
+        
         Genome geno = new Genome();
         Connection conn = new Connection(new Neuron(0), new Neuron(1), 2.0, 2);
         geno.links.add(conn);
@@ -22,6 +22,8 @@ public class Test{
         for(int i = 0; i < 10; i++){
             geno.mAddNeuron(innovs);
         }
+        
+        System.out.println("Time elapsed in ns: " + (System.nanoTime()-startTime));
     }
 
     static void Test2(){
@@ -38,7 +40,7 @@ public class Test{
 
         int oneHits = 0, twoHits = 0, threeHits = 0, fourHits = 0;
 
-        for(int i = 0; i < 10000; i++){
+        for(int i = 0; i < 1000; i++){
             double random = Math.random();
             if(random < ((double)one.length / (double)total)){
                 oneHits++;
@@ -56,7 +58,29 @@ public class Test{
         }
         int k = 0;
 
-        System.out.println(System.nanoTime() - startTime);
+        System.out.println("Time elapsed in ns: " + (System.nanoTime() - startTime));
+        System.out.println(one);
+    }
+    
+    static void Test3(){
+        long startTime = System.nanoTime();
+        
+        int[] all = new int[20];
+        
+        for(int i = 0; i < 1000; i++){
+            all[ThreadLocalRandom.current().nextInt(all.length)]++;
+        }
+        
+        System.out.println("Time elapsed in ns: " + (System.nanoTime() - startTime));
+        System.out.println(all[6]);
+    }
+    
+    static void Test4(){
+        long startTime = System.nanoTime();
+        
+
+        
+        System.out.println("Time elapsed in ns: " + (System.nanoTime() - startTime));
     }
     
 }

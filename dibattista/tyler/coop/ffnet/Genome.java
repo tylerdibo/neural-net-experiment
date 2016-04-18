@@ -15,6 +15,10 @@ public class Genome{
     public List<Neuron> inputNeurons;
     public List<Neuron> hiddenNeurons;
     public List<Neuron> outputNeurons;
+    
+    public List<Neuron> nonInputNeurons;
+    public List<Neuron> allNeurons;
+    
     public List<Connection> links;
     
     int id;
@@ -23,6 +27,9 @@ public class Genome{
         inputNeurons = new ArrayList<Neuron>();
         outputNeurons = new ArrayList<Neuron>();
         hiddenNeurons = new ArrayList<Neuron>();
+        
+        nonInputNeurons = new ArrayList<Neuron>();
+        
         links = new ArrayList<Connection>();
         innovationNumber = 1;
     }
@@ -84,7 +91,7 @@ public class Genome{
                 links.add(connInToNew);
                 newNeuron.addConnection(connInToNew);
                 
-                hiddenNeurons.add(newNeuron);
+                addNeuron(newNeuron);
                 break;
             }
         }
@@ -99,16 +106,43 @@ public class Genome{
             links.add(connInToNew);
             newNeuron.addConnection(connInToNew);
             
-            hiddenNeurons.add(newNeuron);
+            addNeuron(newNeuron);
         }
     }
 
     public void mAddConnection(List<Innovation> innovs, int tries){
         //add a new connection between two random neurons
-        int nodeId1, nodeId2;
+        Neuron node1, node2;
+        boolean recur;
+        boolean found = false;
         
+        recur = ThreadLocalRandom.current().nextBoolean();
+        
+        outerLoop:
         for(int i = 0; i < tries; i++){
-            nodeId1 = ThreadLocalRandom.current().nextInt(hiddenNeurons.size());
+            node1 = nonInputNeurons.get(ThreadLocalRandom.current().nextInt(nonInputNeurons.size()));
+            node2 = nonInputNeurons.get(ThreadLocalRandom.current().nextInt(nonInputNeurons.size()));
+            
+            if(node2.type != Neuron.NeuronTypes.INPUT){
+                for(Connection c : links){
+                    if(c.in == node1 && c.out == node2 && !c.isRecurrent){
+                        continue outerLoop;
+                    }
+                }
+                //check if network contains infinite loop
+                found = true;
+                break;
+            }
+            
+        }
+        
+        if (!found){
+            return;
+        }
+        double newWeight;
+        boolean sameInnov = false;
+        for(Innovation i : innovs){
+            if(i.type)
         }
         
         //n2.addConnection(n1, Math.random(), innovationNumber); //TODO: determine which is on an inferior layer
@@ -117,6 +151,26 @@ public class Genome{
     public void mConnectionWeights(Connection conn){
         //modify the weight of a connection
         conn.weight = Math.random();
+    }
+
+    private void addNeuron(Neuron neuron){
+        switch(neuron.type){
+            case INPUT:
+                inputNeurons.add(neuron);
+                allNeurons.add(neuron);
+                break;
+            case HIDDEN:
+                hiddenNeurons.add(neuron);
+                nonInputNeurons.add(neuron);
+                allNeurons.add(neuron);
+                break;
+            case OUTPUT:
+                outputNeurons.add(neuron);
+                nonInputNeurons.add(neuron);
+                allNeurons.add(neuron);
+            case BIAS:
+                allNeurons.add(neuron);
+        }
     }
 
 }
