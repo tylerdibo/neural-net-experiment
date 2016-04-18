@@ -43,7 +43,7 @@ public class Genome{
         return outputValues;
     }
     
-    public void mAddNeuron(List<Innovation> innovs){
+    public void mAddNeuron(List<Innovation> innovs, double currentInnov){
         //take connection and put neuron between
         
         Connection conn = null;
@@ -97,22 +97,25 @@ public class Genome{
         }
         if(!sameInnov) {
             Neuron newNeuron = new Neuron(innovationNumber);
-            
-            Connection connNewToOut = new Connection(newNeuron, conn.out, conn.weight, innovationNumber);
+
+            Connection connNewToOut = new Connection(newNeuron, conn.out, conn.weight, currentInnov);
             links.add(connNewToOut);
             conn.out.addConnection(connNewToOut);
 
             Connection connInToNew = new Connection(conn.in, newNeuron, 1.0, innovationNumber);
             links.add(connInToNew);
             newNeuron.addConnection(connInToNew);
-            
+
             addNeuron(newNeuron);
+
+            innovs.add(new Innovation(conn.in.getId(), conn.out.getId(), currentInnov - 2.0, currentInnov - 1.0, newNeuron.getId(), conn.innovationNum));
         }
     }
 
     public void mAddConnection(List<Innovation> innovs, int tries){
         //add a new connection between two random neurons
-        Neuron node1, node2;
+        Neuron node1 = null;
+        Neuron node2 = null;
         boolean recur;
         boolean found = false;
         
@@ -141,8 +144,11 @@ public class Genome{
         }
         double newWeight;
         boolean sameInnov = false;
+        Connection conn;
         for(Innovation i : innovs){
-            if(i.type)
+            if(i.type == Innovation.InnovType.NEWLINK && i.inNodeId == node1.getId() && i.outNodeId == node2.getId() && i.recur == recur){
+
+            }
         }
         
         //n2.addConnection(n1, Math.random(), innovationNumber); //TODO: determine which is on an inferior layer
