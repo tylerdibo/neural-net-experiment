@@ -21,7 +21,7 @@ public class NeatMain {
         //initialize input layer neurons
         List<Neuron> inputNeurons = new ArrayList<Neuron>();
         for (int i = 0; i < inputs.length; i++) {
-            Neuron neuron = new Neuron(0); //innovationNumber
+            Neuron neuron = new Neuron(Neuron.NeuronTypes.INPUT, 0); //innovationNumber
             neuron.setActivatedValue(Double.parseDouble((inputs[i])));
             neuron.activated = true;
             inputNeurons.add(neuron);

@@ -14,29 +14,29 @@ public class Main {
         //initialize input layer neurons
         List<Neuron> inputNeurons = new ArrayList<Neuron>();
         for(int i = 0; i < inputs.length; i++) {
-            Neuron neuron = new Neuron(0);
+            Neuron neuron = new Neuron(Neuron.NeuronTypes.INPUT, 0);
             neuron.setActivatedValue(Double.parseDouble((inputs[i])));
             neuron.activated = true;
             inputNeurons.add(neuron);
         }
 
 
-        Neuron biasInputNeuron = new Neuron(0); //initialize bias neuron on input layer
+        Neuron biasInputNeuron = new Neuron(Neuron.NeuronTypes.BIAS, 0); //initialize bias neuron on input layer
         biasInputNeuron.setActivatedValue(1d); //set the neuron to 1
         biasInputNeuron.activated = true;
 
         //initialize hidden layer of neurons
         List<Neuron> hiddenNeurons = new ArrayList<Neuron>();
-        hiddenNeurons.add(new Neuron(0));
-        hiddenNeurons.add(new Neuron(0));
+        hiddenNeurons.add(new Neuron(Neuron.NeuronTypes.HIDDEN, 0));
+        hiddenNeurons.add(new Neuron(Neuron.NeuronTypes.HIDDEN, 0));
 
 
-        Neuron biasHiddenNeuron = new Neuron(0); //initialize bias neuron on hidden layer
+        Neuron biasHiddenNeuron = new Neuron(Neuron.NeuronTypes.BIAS, 0); //initialize bias neuron on hidden layer
         biasHiddenNeuron.setActivatedValue(1d); //set the neuron to 1
         biasHiddenNeuron.activated = true;
 
         //initialize output neuron
-        Neuron outputNeuron = new Neuron(0);
+        Neuron outputNeuron = new Neuron(Neuron.NeuronTypes.OUTPUT, 0);
 
         /*//add connections from input layer to first hidden neuron
         inputNeurons.get(0).addConnection(hiddenNeurons.get(0), 20d);

@@ -7,21 +7,30 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Test{
     
     public static void main(String[] args){
-        Test2();
-        Test3();
+        Test1();
     }
 
     static void Test1(){
         long startTime = System.nanoTime();
         
+        double innovationNumber = 0.0;
+        
         Genome geno = new Genome();
-        Connection conn = new Connection(new Neuron(0), new Neuron(1), 2.0, 2);
+        Neuron n1 = new Neuron(Neuron.NeuronTypes.HIDDEN, 0);
+        geno.addNeuron(n1);
+        Neuron n2 = new Neuron(Neuron.NeuronTypes.HIDDEN, 1);
+        geno.addNeuron(n2);
+        Connection conn = new Connection(n1, n2, 2.0, 2);
         geno.links.add(conn);
         List<Innovation> innovs = new ArrayList<Innovation>();
 
         for(int i = 0; i < 10; i++){
-            geno.mAddNeuron(innovs);
+            geno.mAddNeuron(innovs, innovationNumber);
+            
+            geno.mAddConnection(innovs, innovationNumber, 20);
         }
+        
+        geno.mConnectionWeights(2.0, 0.5, false);
         
         System.out.println("Time elapsed in ns: " + (System.nanoTime()-startTime));
     }
@@ -78,7 +87,7 @@ public class Test{
     static void Test4(){
         long startTime = System.nanoTime();
         
-
+        
         
         System.out.println("Time elapsed in ns: " + (System.nanoTime() - startTime));
     }

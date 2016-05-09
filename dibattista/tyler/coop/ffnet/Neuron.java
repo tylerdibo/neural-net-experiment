@@ -23,7 +23,8 @@ public class Neuron {
     boolean activated = false;
 
     //initialize a neuron with a list of connections and default value of 0
-    public Neuron(int innovationNumber){
+    public Neuron(NeuronTypes type, int innovationNumber){
+        this.type = type;
         connections = new ArrayList<Connection>();
         value = 0;
         id = innovationNumber;

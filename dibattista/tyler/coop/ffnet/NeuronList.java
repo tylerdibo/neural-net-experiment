@@ -22,8 +22,8 @@ public final class NeuronList {
         allNeurons.add(neuron);
     }
     
-    public static void addNeuron(int innov){
-        allNeurons.add(new Neuron(innov));
+    public static void addNeuron(Neuron.NeuronTypes type, int innov){
+        allNeurons.add(new Neuron(type, innov));
     }
     
     public static Neuron getNeuron(int id){
