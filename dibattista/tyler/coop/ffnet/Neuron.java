@@ -10,8 +10,9 @@ public class Neuron {
 
     private int id;
     private double value;
-    private double activatedValue;
-    private double lastActivatedValue;
+    public double activatedValue;
+    public double lastActivatedValue, lastActivatedValue2;
+    public int activationCount;
 
     public enum NeuronTypes{
         INPUT, HIDDEN, OUTPUT, BIAS
@@ -26,8 +27,12 @@ public class Neuron {
     public Neuron(NeuronTypes type, int innovationNumber){
         this.type = type;
         connections = new ArrayList<Connection>();
-        value = 0;
+        value = 0.0;
+        activatedValue = 0.0;
+        lastActivatedValue = 0.0;
+        lastActivatedValue2 = 0.0;
         id = innovationNumber;
+        activationCount = 0;
     }
 
     //create a connection starting from this neuron to another one with a certain weight

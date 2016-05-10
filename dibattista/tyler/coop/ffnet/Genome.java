@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
+import java.io.Serializable;
 
-public class Genome{
+public class Genome implements Serializable{
 
     static final int MAX_ADD_NEURON_TRIES = 20;
     static final int SMALL_GENOME_LIMIT = 15;
@@ -47,6 +48,23 @@ public class Genome{
             outputValues.add(n.getActivatedValue());
         }
         return outputValues;
+    }
+    
+    public void loadSensors(double[] values){
+        int i = 0;
+        for(Neuron n : inputNeurons){
+            if(n.type == Neuron.NeuronTypes.INPUT){
+                n.lastActivatedValue2 = n.lastActivatedValue;
+                n.lastActivatedValue = n.activatedValue;
+                
+                n.activationCount++;
+                n.activatedValue = values[i];
+                
+                i++;
+            }else{
+                LOGGER.warning("Non input neuron in the input array.");
+            }
+        }
     }
     
     public void mAddNeuron(List<Innovation> innovs, double currentInnov){
@@ -267,6 +285,23 @@ public class Genome{
             }
         }
     }
+    
+    public Genome mateMultipoint(Genome g, int newGenomeId, double fitness1, double fitness2){
+        boolean p1Better;
+        if(fitness1 > fitness2)
+            p1Better = true;
+        else if(fitness1 == fitness2){
+            if(links.size() < g.links.size())
+                p1Better = true;
+            else
+                p1Better = false;
+        }else
+            p1Better = false;
+    }
+    
+    /*public Genome clone(){
+        //ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    }*/
 
     public void addNeuron(Neuron neuron){
         switch(neuron.type){

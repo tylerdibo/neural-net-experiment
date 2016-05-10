@@ -7,30 +7,39 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Test{
     
     public static void main(String[] args){
-        Test1();
+        Test1(args);
     }
 
-    static void Test1(){
+    static void Test1(String[] args){
         long startTime = System.nanoTime();
         
         double innovationNumber = 0.0;
         
         Genome geno = new Genome();
-        Neuron n1 = new Neuron(Neuron.NeuronTypes.HIDDEN, 0);
-        geno.addNeuron(n1);
-        Neuron n2 = new Neuron(Neuron.NeuronTypes.HIDDEN, 1);
-        geno.addNeuron(n2);
-        Connection conn = new Connection(n1, n2, 2.0, 2);
-        geno.links.add(conn);
+        Neuron in = new Neuron(Neuron.NeuronTypes.INPUT, 0);
+        geno.addNeuron(in);
+        
+        Neuron out = new Neuron(Neuron.NeuronTypes.OUTPUT, 3);
+        geno.addNeuron(out);
+        
+        Connection connOut = new Connection(in, out, 2.0, 2);
+        geno.links.add(connOut);
+        
         List<Innovation> innovs = new ArrayList<Innovation>();
 
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < 2; i++){
             geno.mAddNeuron(innovs, innovationNumber);
             
             geno.mAddConnection(innovs, innovationNumber, 20);
         }
         
-        geno.mConnectionWeights(2.0, 0.5, false);
+        //geno.mConnectionWeights(2.0, 0.5, false);
+        double[] inputs = new double[4];
+        for(int i = 0; i < args.length; i++){
+            inputs[i] = Double.parseDouble(args[i]);
+        }
+        geno.loadSensors(inputs);
+        System.out.println("OUTPUT: " + geno.calculate().get(0));
         
         System.out.println("Time elapsed in ns: " + (System.nanoTime()-startTime));
     }
