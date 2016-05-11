@@ -44,7 +44,7 @@ public class Genome implements Serializable{
     public List<Double> calculate(){
         List<Double> outputValues = new ArrayList<Double>();
         for(Neuron n : outputNeurons){
-            n.calculate();
+            n.calculate(null);
             outputValues.add(n.getActivatedValue());
         }
         return outputValues;
@@ -64,6 +64,12 @@ public class Genome implements Serializable{
             }else{
                 LOGGER.warning("Non input neuron in the input array.");
             }
+        }
+    }
+    
+    public void reset(){
+        for(Neuron n : outputNeurons){
+            n.reset();
         }
     }
     

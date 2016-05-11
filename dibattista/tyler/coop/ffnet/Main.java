@@ -65,7 +65,7 @@ public class Main {
         outputNeuron.addConnection(hiddenNeurons.get(1), -20d, 0);
         outputNeuron.addConnection(biasHiddenNeuron, -10d, 0);
 
-        outputNeuron.calculate();
+        outputNeuron.calculate(null);
 
         //print neuron values
         System.out.println("Input 1: " + inputNeurons.get(0).getActivatedValue());

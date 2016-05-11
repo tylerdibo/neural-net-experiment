@@ -45,18 +45,18 @@ public class Neuron {
     }
 
     //multiply the value by the weight to add to the connected neurons
-    public void calculate(){
-        for(Connection c : connections){
-            c.in.calculate();
-            double a;
-            if(c.timeDelay){
-                a = (c.in.lastActivatedValue * c.weight);
-            }else {
-                a = (c.in.activatedValue * c.weight);
-            }
-            value += a;
-        }
+    public void calculate(Neuron caller){
         if (!activated) {
+            for(Connection c : connections){
+                double a;
+                if(c.in == caller){ //TODO: make sure this works
+                    a = (c.in.lastActivatedValue * c.weight);
+                }else {
+                    c.in.calculate(this);
+                    a = (c.in.activatedValue * c.weight);
+                }
+                value += a;
+            }
             activate(); // activate
         }
     }
@@ -67,6 +67,30 @@ public class Neuron {
         lastActivatedValue = activatedValue;
         activatedValue = (1/(1+Math.exp(-value)));
         activationCount++;
+    }
+    
+    public void reset(){
+        if(type != NeuronTypes.INPUT){
+            if(activationCount > 0){
+                activationCount = 0;
+                value = 0.0;
+                activatedValue = 0.0;
+                lastActivatedValue = 0.0;
+                lastActivatedValue2 = 0.0;
+                activated = false;
+            }
+            for(Connection c : connections){
+                if(c.in.activationCount > 0)
+                    c.in.reset();
+            }
+        }else{
+            activationCount = 0;
+            value = 0.0;
+            activatedValue = 0.0;
+            lastActivatedValue = 0.0;
+            lastActivatedValue2 = 0.0;
+            activated = false;
+        }
     }
 
     public double getValue() {

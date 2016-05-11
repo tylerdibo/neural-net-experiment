@@ -19,14 +19,14 @@ public class Test{
         Neuron in = new Neuron(Neuron.NeuronTypes.INPUT, 0);
         geno.addNeuron(in);
         
-        Neuron out = new Neuron(Neuron.NeuronTypes.OUTPUT, 3);
+        Neuron out = new Neuron(Neuron.NeuronTypes.OUTPUT, 1);
         geno.addNeuron(out);
         
         List<Innovation> innovs = new ArrayList<Innovation>();
 
         for(int i = 0; i < 2; i++){
-            geno.mAddConnection(innovs, innovationNumber, 20);
-            geno.mAddNeuron(innovs, innovationNumber);
+            geno.mAddConnection(innovs, innovationNumber++, 20);
+            geno.mAddNeuron(innovs, innovationNumber++);
         }
         
         geno.mConnectionWeights(2.0, 0.5, false);
