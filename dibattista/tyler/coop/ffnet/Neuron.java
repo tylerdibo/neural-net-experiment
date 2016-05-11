@@ -48,7 +48,12 @@ public class Neuron {
     public void calculate(){
         for(Connection c : connections){
             c.in.calculate();
-            double a = (c.in.activatedValue * c.weight);
+            double a;
+            if(c.timeDelay){
+                a = (c.in.lastActivatedValue * c.weight);
+            }else {
+                a = (c.in.activatedValue * c.weight);
+            }
             value += a;
         }
         if (!activated) {
@@ -58,7 +63,10 @@ public class Neuron {
 
     //sigmoid function
     public void activate(){
+        lastActivatedValue2 = lastActivatedValue;
+        lastActivatedValue = activatedValue;
         activatedValue = (1/(1+Math.exp(-value)));
+        activationCount++;
     }
 
     public double getValue() {

@@ -20,6 +20,7 @@ public class Connection {
         this.weight = weight;
         innovationNum = innovation;
         active = true;
+        timeDelay = false;
     }
 
 }

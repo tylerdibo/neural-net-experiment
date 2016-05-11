@@ -40,7 +40,7 @@ public class Genome implements Serializable{
         links = new ArrayList<Connection>();
         innovationNumber = 1;
     }
-    
+
     public List<Double> calculate(){
         List<Double> outputValues = new ArrayList<Double>();
         for(Neuron n : outputNeurons){
@@ -99,7 +99,6 @@ public class Genome implements Serializable{
             return;
 
         conn.active = false;
-        boolean foundInnov = false;
 
         for(Innovation i : innovs){ //TODO: maybe create the connections after, and just log when its the same innov
             if((i.type == Innovation.InnovType.NEWNODE) && (i.inNodeId == conn.in.getId()) && (i.outNodeId == conn.out.getId()) && (i.oldLinkInnov == conn.innovationNum)){
@@ -114,27 +113,24 @@ public class Genome implements Serializable{
                 newNeuron.addConnection(connInToNew);
                 
                 addNeuron(newNeuron);
-                foundInnov = true;
                 return;
             }
         }
-        if(!foundInnov){
-            Neuron newNeuron = new Neuron(Neuron.NeuronTypes.HIDDEN, innovationNumber);
+        Neuron newNeuron = new Neuron(Neuron.NeuronTypes.HIDDEN, innovationNumber);
 
-            Connection connNewToOut = new Connection(newNeuron, conn.out, conn.weight, currentInnov);
-            links.add(connNewToOut);
-            conn.out.addConnection(connNewToOut);
+        Connection connNewToOut = new Connection(newNeuron, conn.out, conn.weight, currentInnov);
+        links.add(connNewToOut);
+        conn.out.addConnection(connNewToOut);
 
-            Connection connInToNew = new Connection(conn.in, newNeuron, 1.0, innovationNumber);
-            links.add(connInToNew);
-            newNeuron.addConnection(connInToNew);
+        Connection connInToNew = new Connection(conn.in, newNeuron, 1.0, innovationNumber);
+        links.add(connInToNew);
+        newNeuron.addConnection(connInToNew);
 
-            addNeuron(newNeuron);
+        addNeuron(newNeuron);
 
-            innovs.add(new Innovation(conn.in.getId(), conn.out.getId(), currentInnov - 2.0, currentInnov - 1.0, newNeuron.getId(), conn.innovationNum));
-        }
+        innovs.add(new Innovation(conn.in.getId(), conn.out.getId(), currentInnov - 2.0, currentInnov - 1.0, newNeuron.getId(), conn.innovationNum));
         
-        LOGGER.fine("New neuron added in connection number " + conn.innovationNum);
+        LOGGER.info("New neuron added in connection number " + conn.innovationNum);
     }
 
     public void mAddConnection(List<Innovation> innovs, double currentInnov, int tries){
@@ -192,21 +188,23 @@ public class Genome implements Serializable{
         }
         
         double newWeight;
-        boolean foundInnov = false;
-        Connection conn = null;
+        Connection conn;
         for(Innovation i : innovs){
             if(i.type == Innovation.InnovType.NEWLINK && i.inNodeId == node1.getId() && i.outNodeId == node2.getId() && i.recur == recur){
                 conn = new Connection(node1, node2, i.newLinkWeight, i.innovNum1);
-                foundInnov = true;
+                links.add(conn);
+                LOGGER.info("New connection added between " + node1.getId() + " and " + node2.getId() + " matching Innovation " + i.innovNum1);
+                return;
             }
         }
-        if(!foundInnov){
-            newWeight = ThreadLocalRandom.current().nextDouble(-MAX_NEW_CONNECTION_WEIGHT, MAX_NEW_CONNECTION_WEIGHT); //TODO: double check this
-            conn = new Connection(node1, node2, newWeight, currentInnov);
-        }
+
+        newWeight = ThreadLocalRandom.current().nextDouble(-MAX_NEW_CONNECTION_WEIGHT, MAX_NEW_CONNECTION_WEIGHT); //TODO: double check this
+        conn = new Connection(node1, node2, newWeight, currentInnov);
+
+        innovs.add(new Innovation(node1.getId(), node2.getId(), currentInnov, newWeight));
         
         links.add(conn);
-        LOGGER.fine("New connection added between " + node1.getId() + " and " + node2.getId());
+        LOGGER.info("New connection added between " + node1.getId() + " and " + node2.getId());
     }
 
     public void mConnectionWeights(double power, double rate, boolean coldGauss){
@@ -287,6 +285,7 @@ public class Genome implements Serializable{
     }
     
     public Genome mateMultipoint(Genome g, int newGenomeId, double fitness1, double fitness2){
+        Genome baby = null;
         boolean p1Better;
         if(fitness1 > fitness2)
             p1Better = true;
@@ -297,6 +296,10 @@ public class Genome implements Serializable{
                 p1Better = false;
         }else
             p1Better = false;
+
+        boolean skip;
+
+        return baby;
     }
     
     /*public Genome clone(){
@@ -318,8 +321,10 @@ public class Genome implements Serializable{
                 outputNeurons.add(neuron);
                 nonInputNeurons.add(neuron);
                 allNeurons.add(neuron);
+                break;
             case BIAS:
                 allNeurons.add(neuron);
+                break;
         }
     }
 

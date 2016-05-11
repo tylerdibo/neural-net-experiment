@@ -22,18 +22,14 @@ public class Test{
         Neuron out = new Neuron(Neuron.NeuronTypes.OUTPUT, 3);
         geno.addNeuron(out);
         
-        Connection connOut = new Connection(in, out, 2.0, 2);
-        geno.links.add(connOut);
-        
         List<Innovation> innovs = new ArrayList<Innovation>();
 
         for(int i = 0; i < 2; i++){
-            geno.mAddNeuron(innovs, innovationNumber);
-            
             geno.mAddConnection(innovs, innovationNumber, 20);
+            geno.mAddNeuron(innovs, innovationNumber);
         }
         
-        //geno.mConnectionWeights(2.0, 0.5, false);
+        geno.mConnectionWeights(2.0, 0.5, false);
         double[] inputs = new double[4];
         for(int i = 0; i < args.length; i++){
             inputs[i] = Double.parseDouble(args[i]);
