@@ -13,7 +13,8 @@ public class Test{
     static void Test1(String[] args){
         long startTime = System.nanoTime();
         
-        double innovationNumber = 0.0;
+        double innovationNumber = 2.0;
+        int nodeId = 2;
         
         Genome geno = new Genome();
         Neuron in = new Neuron(Neuron.NeuronTypes.INPUT, 0);
@@ -26,10 +27,10 @@ public class Test{
 
         for(int i = 0; i < 2; i++){
             geno.mAddConnection(innovs, innovationNumber++, 20);
-            geno.mAddNeuron(innovs, innovationNumber++);
+            geno.mAddNeuron(innovs, innovationNumber++, nodeId);
         }
         
-        geno.mConnectionWeights(2.0, 0.5, false);
+        //geno.mConnectionWeights(2.0, 0.5, false);
         double[] inputs = new double[4];
         for(int i = 0; i < args.length; i++){
             inputs[i] = Double.parseDouble(args[i]);

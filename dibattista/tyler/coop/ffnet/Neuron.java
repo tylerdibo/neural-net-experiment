@@ -24,20 +24,20 @@ public class Neuron {
     boolean activated = false;
 
     //initialize a neuron with a list of connections and default value of 0
-    public Neuron(NeuronTypes type, int innovationNumber){
+    public Neuron(NeuronTypes type, int id){
         this.type = type;
         connections = new ArrayList<Connection>();
         value = 0.0;
         activatedValue = 0.0;
         lastActivatedValue = 0.0;
         lastActivatedValue2 = 0.0;
-        id = innovationNumber;
+        this.id = id;
         activationCount = 0;
     }
 
     //create a connection starting from this neuron to another one with a certain weight
-    public void addConnection(Neuron input, double weight, int innovationNumber){
-        connections.add(new Connection(input, this, weight, innovationNumber));
+    public void addConnection(Neuron input, double weight, int innovationNumber, boolean recur){
+        connections.add(new Connection(input, this, weight, innovationNumber, recur));
     }
 
     public void addConnection(Connection conn){
@@ -45,14 +45,13 @@ public class Neuron {
     }
 
     //multiply the value by the weight to add to the connected neurons
-    public void calculate(Neuron caller){
+    public void calculate(){
         if (!activated) {
             for(Connection c : connections){
                 double a;
-                if(c.in == caller){ //TODO: make sure this works
+                if(c.timeDelay){ //TODO: make sure this works
                     a = (c.in.lastActivatedValue * c.weight);
                 }else {
-                    c.in.calculate(this);
                     a = (c.in.activatedValue * c.weight);
                 }
                 value += a;

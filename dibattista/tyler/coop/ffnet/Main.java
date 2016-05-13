@@ -53,7 +53,9 @@ public class Main {
         hiddenNeurons.get(1).addConnection(outputNeuron, -20d);
         biasHiddenNeuron.addConnection(outputNeuron, -10d);*/
 
-        hiddenNeurons.get(0).addConnection(inputNeurons.get(0), 20d, 0);
+
+        //add this back later
+        /*hiddenNeurons.get(0).addConnection(inputNeurons.get(0), 20d, 0);
         hiddenNeurons.get(0).addConnection(inputNeurons.get(1), 20d, 0);
         hiddenNeurons.get(0).addConnection(biasInputNeuron, -10d, 0);
 
@@ -63,9 +65,9 @@ public class Main {
 
         outputNeuron.addConnection(hiddenNeurons.get(0), 20d, 0);
         outputNeuron.addConnection(hiddenNeurons.get(1), -20d, 0);
-        outputNeuron.addConnection(biasHiddenNeuron, -10d, 0);
+        outputNeuron.addConnection(biasHiddenNeuron, -10d, 0);*/
 
-        outputNeuron.calculate(null);
+        outputNeuron.calculate();
 
         //print neuron values
         System.out.println("Input 1: " + inputNeurons.get(0).getActivatedValue());
