@@ -12,6 +12,7 @@ public class Genome implements Serializable{
     static final int SMALL_GENOME_LIMIT = 15;
     static final double ADD_NEURON_OLD_BIAS = 0.3;
     static final double LOOP_RECUR_CHANCE = 0.5;
+    static final double RECUR_CHANCE = 0.5;
     static final double MAX_NEW_CONNECTION_WEIGHT = 10.0;
     
     private final static Logger LOGGER = Logger.getLogger(Genome.class.getName());
@@ -155,18 +156,21 @@ public class Genome implements Serializable{
         Neuron node1 = null;
         Neuron node2 = null;
         boolean recur;
+        boolean recurConfirm;
         boolean found = false;
-        
-        recur = ThreadLocalRandom.current().nextBoolean();
+
+        int thresh = (allNeurons.size())*(allNeurons.size());
+
+        recur = ThreadLocalRandom.current().nextDouble() < RECUR_CHANCE;
         
         if(recur){
             recurLoop:
             for(int i = 0; i < tries; i++){
-                if(ThreadLocalRandom.current().nextDouble() > LOOP_RECUR_CHANCE){
+                if(ThreadLocalRandom.current().nextDouble() < LOOP_RECUR_CHANCE){
                     node1 = nonInputNeurons.get(ThreadLocalRandom.current().nextInt(nonInputNeurons.size()));
                     node2 = node1;
                 }else{
-                    node1 = allNeurons.get(ThreadLocalRandom.current().nextInt(nonInputNeurons.size()));
+                    node1 = allNeurons.get(ThreadLocalRandom.current().nextInt(allNeurons.size()));
                     node2 = nonInputNeurons.get(ThreadLocalRandom.current().nextInt(nonInputNeurons.size()));
                 }
                 
@@ -176,15 +180,18 @@ public class Genome implements Serializable{
                             continue recurLoop;
                         }
                     }
-                    //check if network contains infinite loop
-                    found = true;
-                    break;
+                    //TODO: check if network contains infinite loop
+                    recurConfirm = isRecur(node1, node2, thresh);
+                    if(recurConfirm) {
+                        found = true;
+                        break;
+                    }
                 }
             }
         }else{
             nonRecurLoop:
             for(int i = 0; i < tries; i++){
-                node1 = nonInputNeurons.get(ThreadLocalRandom.current().nextInt(nonInputNeurons.size()));
+                node1 = allNeurons.get(ThreadLocalRandom.current().nextInt(allNeurons.size()));
                 node2 = nonInputNeurons.get(ThreadLocalRandom.current().nextInt(nonInputNeurons.size()));
             
                 if(node2.type != Neuron.NeuronTypes.INPUT){
@@ -194,8 +201,12 @@ public class Genome implements Serializable{
                         }
                     }
                     //check if network contains infinite loop
-                    found = true;
-                    break;
+                    count = 0;
+                    recurConfirm = isRecur(node1, node2, thresh);
+                    if(!recurConfirm) {
+                        found = true;
+                        break;
+                    }
                 }
             }
         }
@@ -336,6 +347,7 @@ public class Genome implements Serializable{
                         return true;
                 }
             }
+            return false;
         }
     }
     

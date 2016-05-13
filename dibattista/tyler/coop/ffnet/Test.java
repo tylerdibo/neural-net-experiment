@@ -27,7 +27,7 @@ public class Test{
 
         for(int i = 0; i < 2; i++){
             geno.mAddConnection(innovs, innovationNumber++, 20);
-            geno.mAddNeuron(innovs, innovationNumber++, nodeId);
+            geno.mAddNeuron(innovs, innovationNumber++, nodeId++);
         }
         
         //geno.mConnectionWeights(2.0, 0.5, false);
