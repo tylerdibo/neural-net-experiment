@@ -5,6 +5,11 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
 import java.io.Serializable;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import java.io.IOException;
 
 public class Genome implements Serializable{
 
@@ -212,6 +217,7 @@ public class Genome implements Serializable{
         }
         
         if (!found){
+            LOGGER.info("New connection not found.");
             return;
         }
         
@@ -351,9 +357,46 @@ public class Genome implements Serializable{
         }
     }
     
-    /*public Genome clone(){
-        //ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    }*/
+    public Genome clone(){
+        try{
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            oos.writeObject(this);
+        
+            ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+		    ObjectInputStream ois = new ObjectInputStream(bis);
+		    return (Genome) ois.readObject();
+        }catch(IOException e){
+            e.printStackTrace();
+            return null;
+        }
+        catch(ClassNotFoundException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    public double compatibility(Genome g){
+        //TODO: should probably just use Iterators
+        boolean gIsBigger = links.size() < g.links.size();
+        double p1Innov, p2Innov;
+        double numExcess;
+        
+        if(gIsBigger){
+            numExcess = g.links.size() - links.size();
+            for(Connection c : g.links){
+                p1Innov = c.innovationNum;
+            }
+        }
+    }
+    
+    public int getLastNodeId(){
+        return (allNeurons.get(allNeurons.size()).getId()) + 1;
+    }
+    
+    public double getLastInnovNum(){
+        return (links.get(links.size()).innovationNum) + 1.0;
+    }
 
     public void addNeuron(Neuron neuron){
         switch(neuron.type){

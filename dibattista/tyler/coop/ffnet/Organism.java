@@ -6,9 +6,10 @@ public class Organism{
     Genome genome;
     int generation;
     
-    public Organism(Genome g, int gen){
+    public Organism(double fitness, Genome g, int gen){
         genome = g;
         generation = gen;
+        this.fitness = fitness;
     }
     
 }

@@ -25,7 +25,7 @@ public class Test{
         
         List<Innovation> innovs = new ArrayList<Innovation>();
 
-        for(int i = 0; i < 2; i++){
+        for(int i = 0; i < 5; i++){
             geno.mAddConnection(innovs, innovationNumber++, 20);
             geno.mAddNeuron(innovs, innovationNumber++, nodeId++);
         }
