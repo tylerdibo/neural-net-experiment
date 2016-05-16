@@ -1,6 +1,7 @@
 package dibattista.tyler.coop.ffnet;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
@@ -19,7 +20,10 @@ public class Genome implements Serializable{
     static final double LOOP_RECUR_CHANCE = 0.5;
     static final double RECUR_CHANCE = 0.5;
     static final double MAX_NEW_CONNECTION_WEIGHT = 10.0;
-    
+    static final double DISJOINT_COEFF = 1.0;
+    static final double EXCESS_COEFF = 1.0;
+    static final double MUTDIFF_COEFF = 0.4;
+
     private final static Logger LOGGER = Logger.getLogger(Genome.class.getName());
 
     public int count = 0;
@@ -364,8 +368,8 @@ public class Genome implements Serializable{
             oos.writeObject(this);
         
             ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-		    ObjectInputStream ois = new ObjectInputStream(bis);
-		    return (Genome) ois.readObject();
+            ObjectInputStream ois = new ObjectInputStream(bis);
+            return (Genome) ois.readObject();
         }catch(IOException e){
             e.printStackTrace();
             return null;
@@ -378,16 +382,38 @@ public class Genome implements Serializable{
     
     public double compatibility(Genome g){
         //TODO: should probably just use Iterators
-        boolean gIsBigger = links.size() < g.links.size();
         double p1Innov, p2Innov;
         double numExcess;
-        
-        if(gIsBigger){
-            numExcess = g.links.size() - links.size();
-            for(Connection c : g.links){
-                p1Innov = c.innovationNum;
+        double numMatching = 0.0;
+        double mutDiffTotal = 0.0;
+        double numDisjoint = 0.0;
+
+        Iterator<Connection> p1Iter = links.iterator();
+        Iterator<Connection> p2Iter = g.links.iterator();
+        Connection p1conn = p1Iter.next();
+        Connection p2conn = p2Iter.next();
+
+        numExcess = g.links.size() - links.size();
+        while(p1Iter.hasNext() && p2Iter.hasNext()) {
+            p1Innov = p1conn.innovationNum;
+            p2Innov = p2conn.innovationNum;
+
+            if (p1Innov == p2Innov) {
+                numMatching += 1.0;
+                mutDiffTotal += Math.abs(p1conn.mutationNum - p2conn.mutationNum);
+
+                p1conn = p1Iter.next();
+                p2conn = p2Iter.next();
+            } else if (p1Innov < p2Innov) {
+                p1conn = p1Iter.next();
+                numDisjoint += 1.0;
+            } else {
+                p2conn = p2Iter.next();
+                numDisjoint += 1.0;
             }
         }
+
+        return (DISJOINT_COEFF*numDisjoint + EXCESS_COEFF*numExcess + MUTDIFF_COEFF*(mutDiffTotal/numMatching));
     }
     
     public int getLastNodeId(){
