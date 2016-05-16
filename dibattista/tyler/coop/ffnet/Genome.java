@@ -27,8 +27,6 @@ public class Genome implements Serializable{
     private final static Logger LOGGER = Logger.getLogger(Genome.class.getName());
 
     public int count = 0;
-    
-    private int innovationNumber;
 
     public List<Neuron> inputNeurons;
     public List<Neuron> hiddenNeurons;
@@ -50,7 +48,22 @@ public class Genome implements Serializable{
         allNeurons = new ArrayList<Neuron>();
         
         links = new ArrayList<Connection>();
-        innovationNumber = 1;
+    }
+    
+    public Genome(int id, List<Neuron> nList, List<Connection> cList){
+        this.id = id;
+        inputNeurons = new ArrayList<Neuron>();
+        outputNeurons = new ArrayList<Neuron>();
+        hiddenNeurons = new ArrayList<Neuron>();
+        
+        nonInputNeurons = new ArrayList<Neuron>();
+        allNeurons = new ArrayList<Neuron>();
+        
+        links = cList;
+        
+        for(Neuron n : nList){
+            addNeuron(n);
+        }
     }
 
     public List<Double> calculate(){
@@ -127,11 +140,11 @@ public class Genome implements Serializable{
             if((i.type == Innovation.InnovType.NEWNODE) && (i.inNodeId == conn.in.getId()) && (i.outNodeId == conn.out.getId()) && (i.oldLinkInnov == conn.innovationNum)){
                 Neuron newNeuron = new Neuron(Neuron.NeuronTypes.HIDDEN, nodeId);
 
-                Connection connNewToOut = new Connection(newNeuron, conn.out, conn.weight, i.innovNum2, false);
+                Connection connNewToOut = new Connection(newNeuron, conn.out, conn.weight, i.innovNum2, false, 0);
                 links.add(connNewToOut);
                 conn.out.addConnection(connNewToOut);
 
-                Connection connInToNew = new Connection(conn.in, newNeuron, 1.0, i.innovNum1, false);
+                Connection connInToNew = new Connection(conn.in, newNeuron, 1.0, i.innovNum1, false, 0);
                 links.add(connInToNew);
                 newNeuron.addConnection(connInToNew);
                 
@@ -143,11 +156,11 @@ public class Genome implements Serializable{
         }
         Neuron newNeuron = new Neuron(Neuron.NeuronTypes.HIDDEN, nodeId);
 
-        Connection connNewToOut = new Connection(newNeuron, conn.out, conn.weight, currentInnov, false);
+        Connection connNewToOut = new Connection(newNeuron, conn.out, conn.weight, currentInnov, false, 0);
         links.add(connNewToOut);
         conn.out.addConnection(connNewToOut);
 
-        Connection connInToNew = new Connection(conn.in, newNeuron, 1.0, currentInnov+1.0, false);
+        Connection connInToNew = new Connection(conn.in, newNeuron, 1.0, currentInnov+1.0, false, 0);
         links.add(connInToNew);
         newNeuron.addConnection(connInToNew);
         
@@ -229,7 +242,7 @@ public class Genome implements Serializable{
         Connection conn;
         for(Innovation i : innovs){
             if(i.type == Innovation.InnovType.NEWLINK && i.inNodeId == node1.getId() && i.outNodeId == node2.getId() && i.recur == recur){
-                conn = new Connection(node1, node2, i.newLinkWeight, i.innovNum1, recur);
+                conn = new Connection(node1, node2, i.newLinkWeight, i.innovNum1, recur, 0);
                 node2.addConnection(conn);
                 links.add(conn);
                 LOGGER.info("New connection added between " + node1.getId() + " and " + node2.getId() + " isRecurrent = " + recur + " matching Innovation " + i.innovNum1);
@@ -238,7 +251,7 @@ public class Genome implements Serializable{
         }
 
         newWeight = ThreadLocalRandom.current().nextDouble(-MAX_NEW_CONNECTION_WEIGHT, MAX_NEW_CONNECTION_WEIGHT); //TODO: double check this
-        conn = new Connection(node1, node2, newWeight, currentInnov, recur);
+        conn = new Connection(node1, node2, newWeight, currentInnov, recur, newWeight);
         node2.addConnection(conn);
 
         innovs.add(new Innovation(node1.getId(), node2.getId(), currentInnov, newWeight, recur));
@@ -338,6 +351,120 @@ public class Genome implements Serializable{
             p1Better = false;
 
         boolean skip;
+        boolean disable = false;
+        double p1Innov, p2Innov;
+        Iterator<Connection> p1Iter = links.iterator();
+        Iterator<Connection> p2Iter = g.links.iterator();
+        Connection p1conn = p1Iter.next();
+        Connection p2conn = p2Iter.next();
+        Connection chosenGene, newGene;
+        List<Neuron> newNeurons = new ArrayList<Neuron>();
+        List<Connection> newLinks = new ArrayList<Connection>();
+        Neuron in, out;
+        Neuron newIn = null;
+        Neuron newOut = null;
+        
+        while(p1Iter.hasNext() || p2Iter.hasNext()){
+            skip = false;
+            
+            if(!p1Iter.hasNext()){
+                chosenGene = p2conn;
+                p2conn = p2Iter.next();
+                if(p1Better)
+                    skip = true;
+            }else if(!p2Iter.hasNext()){
+                chosenGene = p1conn;
+                p1conn = p1Iter.next();
+                if(!p1Better)
+                    skip = true;
+            }else{
+                p1Innov = p1conn.innovationNum;
+                p2Innov = p2conn.innovationNum;
+                
+                if(p1Innov == p2Innov){
+                    if(ThreadLocalRandom.current().nextBoolean()){
+                        chosenGene = p1conn;
+                    }else{
+                        chosenGene = p2conn;
+                    }
+                    
+                    if(!p1conn.active || !p2conn.active){
+                        if(ThreadLocalRandom.current().nextDouble() > 0.75)
+                            disable = true;
+                    }
+                    
+                    p1conn = p1Iter.next();
+                    p2conn = p2Iter.next();
+                }else if(p1Innov < p2Innov){
+                    chosenGene = p1conn;
+                    p1conn = p1Iter.next();
+                    if(!p1Better)
+                        skip = true;
+                }else{
+                    chosenGene = p2conn;
+                    p2conn = p2Iter.next();
+                    if(p1Better)
+                        skip = true;
+                }
+            }
+            
+            for(Connection c : newLinks){
+                if((c.in.getId() == chosenGene.in.getId()) &&
+                    (c.out.getId() == chosenGene.out.getId()) &&
+                    (c.isRecurrent == chosenGene.isRecurrent)){
+                        skip = true;
+                        break;
+                }
+            }
+                
+            if(!skip){
+                in = chosenGene.in;
+                out = chosenGene.out;
+                
+                boolean inFound = false;
+                boolean outFound = false;
+                for(Neuron n : newNeurons){
+                    if(n.getId() == in.getId() && !inFound){
+                        inFound = true;
+                        newIn = n;
+                    }
+                    if(n.getId() == out.getId() && !outFound){
+                        outFound = true;
+                        newOut = n;
+                    }
+                    if(inFound && outFound)
+                        break;
+                }
+                if(in.getId() < out.getId()){
+                    if(!inFound){
+                        newIn = new Neuron(in);
+                        newNeurons.add(newIn);
+                    }
+                    if(!outFound){
+                        newOut = new Neuron(out);
+                        newNeurons.add(newOut);
+                    }
+                }else{
+                    if(!outFound){
+                        newOut = new Neuron(out);
+                        newNeurons.add(newOut);
+                    }
+                    if(!inFound){
+                        newIn = new Neuron(in);
+                        newNeurons.add(newIn); //TODO: fix ordering of list
+                    }
+                }
+                
+                newGene = new Connection(chosenGene, newIn, newOut);
+                if(disable){
+                    newGene.active = false;
+                    disable = false;
+                }
+                newLinks.add(newGene);
+            }
+        }
+        
+        baby = new Genome();
 
         return baby;
     }
@@ -373,15 +500,13 @@ public class Genome implements Serializable{
         }catch(IOException e){
             e.printStackTrace();
             return null;
-        }
-        catch(ClassNotFoundException e){
+        }catch(ClassNotFoundException e){
             e.printStackTrace();
             return null;
         }
     }
     
     public double compatibility(Genome g){
-        //TODO: should probably just use Iterators
         double p1Innov, p2Innov;
         double numExcess;
         double numMatching = 0.0;
@@ -393,21 +518,21 @@ public class Genome implements Serializable{
         Connection p1conn = p1Iter.next();
         Connection p2conn = p2Iter.next();
 
-        numExcess = g.links.size() - links.size();
-        while(p1Iter.hasNext() && p2Iter.hasNext()) {
+        numExcess = Math.abs(g.links.size() - links.size());
+        while(p1Iter.hasNext() && p2Iter.hasNext()){
             p1Innov = p1conn.innovationNum;
             p2Innov = p2conn.innovationNum;
 
-            if (p1Innov == p2Innov) {
+            if(p1Innov == p2Innov) {
                 numMatching += 1.0;
                 mutDiffTotal += Math.abs(p1conn.mutationNum - p2conn.mutationNum);
 
                 p1conn = p1Iter.next();
                 p2conn = p2Iter.next();
-            } else if (p1Innov < p2Innov) {
+            }else if(p1Innov < p2Innov) {
                 p1conn = p1Iter.next();
                 numDisjoint += 1.0;
-            } else {
+            }else{
                 p2conn = p2Iter.next();
                 numDisjoint += 1.0;
             }
@@ -424,7 +549,7 @@ public class Genome implements Serializable{
         return (links.get(links.size()).innovationNum) + 1.0;
     }
 
-    public void addNeuron(Neuron neuron){
+    public void addNeuron(Neuron neuron){ //TODO: sort neurons
         switch(neuron.type){
             case INPUT:
                 inputNeurons.add(neuron);

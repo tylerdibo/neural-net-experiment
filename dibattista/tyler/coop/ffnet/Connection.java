@@ -14,14 +14,27 @@ public class Connection {
     double innovationNum;
     double mutationNum;
 
-    public Connection(Neuron in, Neuron out, double weight, double innovation, boolean recurrent){
+    public Connection(Neuron in, Neuron out, double weight, double innovation, boolean recurrent, double mutation){
         this.in = in;
         this.out = out;
         this.weight = weight;
         innovationNum = innovation;
+        mutationNum = mutation;
         active = true;
         timeDelay = false;
         isRecurrent = recurrent;
+    }
+    
+    public Connection(Connection c, Neuron in, Neuron out){
+        this.in = in;
+        this.out = out;
+        weight = c.weight;
+        innovationNum = c.innovationNum;
+        mutationNum = c.mutationNum;
+        active = c.active;
+        timeDelay = false;
+        isRecurrent = c.isRecurrent;
+        
     }
 
 }

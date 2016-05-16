@@ -23,6 +23,13 @@ public class Species {
         ageOfLastImprovement = 0;
         expectedOffspring = 0;
     }
+    
+    public void reproduce(int gen, Population pop, List<Species> sortedSpecies){
+        Organism theChamp = organisms.get(0);
+        for(int i = 0; i < expectedOffspring; i++){
+            
+        }
+    }
 
     public void adjustFitness(){
         int ageDebt = (age - ageOfLastImprovement + 1) - DROPOFF_AGE;

@@ -83,7 +83,7 @@ public class Population{
         int totalOrganisms = organisms.size();
 
         for(Species s : species){
-            s.adjustFitness();
+            s.adjustFitness(); //TODO: finish this
         }
 
         for(Organism o : organisms){
@@ -135,6 +135,12 @@ public class Population{
 
         for(Species s : sortedSpecies){
 
+        }
+        
+        
+        
+        for(Species s : species){
+            
         }
     }
     

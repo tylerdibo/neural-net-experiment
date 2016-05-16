@@ -7,6 +7,7 @@ public class Organism{
     double expectedOffspring;
     Genome genome;
     int generation;
+    int superChampOffspring;
     Species species;
     
     public Organism(double fitness, Genome g, int gen){
@@ -16,6 +17,7 @@ public class Organism{
         originalFitness = fitness;
         species = null;
         expectedOffspring = 0.0;
+        superChampOffspring = 0;
     }
     
 }

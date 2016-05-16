@@ -21,7 +21,7 @@ public class Neuron {
     public NeuronTypes type;
     
     List<Connection> connections;
-    boolean activated = false;
+    boolean activated;
 
     //initialize a neuron with a list of connections and default value of 0
     public Neuron(NeuronTypes type, int id){
@@ -33,11 +33,24 @@ public class Neuron {
         lastActivatedValue2 = 0.0;
         this.id = id;
         activationCount = 0;
+        activated = false;
+    }
+    
+    public Neuron(Neuron n){
+        activated = false;
+        type = n.type;
+        connections = new ArrayList<Connection>();
+        value = 0.0;
+        activatedValue = 0.0;
+        lastActivatedValue = 0.0;
+        lastActivatedValue2 = 0.0;
+        id = n.id;
+        activationCount = 0;
     }
 
     //create a connection starting from this neuron to another one with a certain weight
-    public void addConnection(Neuron input, double weight, int innovationNumber, boolean recur){
-        connections.add(new Connection(input, this, weight, innovationNumber, recur));
+    public void addConnection(Neuron input, double weight, int innovationNumber, boolean recur, double mnum){
+        connections.add(new Connection(input, this, weight, innovationNumber, recur, mnum));
     }
 
     public void addConnection(Connection conn){
