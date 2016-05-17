@@ -13,6 +13,7 @@ public class Neuron {
     public double activatedValue;
     public double lastActivatedValue, lastActivatedValue2;
     public int activationCount;
+    public Neuron dup;
 
     public enum NeuronTypes{
         INPUT, HIDDEN, OUTPUT, BIAS

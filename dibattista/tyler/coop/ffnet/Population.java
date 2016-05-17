@@ -29,7 +29,7 @@ public class Population{
         Genome newGenome = null;
         Organism newOrganism;
         for(int i = 1; i <= size; i++){
-            newGenome = g.clone();
+            newGenome = g.deepClone(i);
             newGenome.mConnectionWeights(1.0, 1.0, false);
             
             newOrganism = new Organism(0.0, newGenome, 1);

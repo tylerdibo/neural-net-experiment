@@ -7,7 +7,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Test{
     
     public static void main(String[] args){
-        Test1(args);
+        Test4();
+        Test5();
     }
 
     static void Test1(String[] args){
@@ -93,8 +94,22 @@ public class Test{
     static void Test4(){
         long startTime = System.nanoTime();
         
+        for(int i = 0; i<10000; i++){
+            ThreadLocalRandom.current().nextBoolean();
+        }
         
-        
+        System.out.println("Time elapsed in ns: " + (System.nanoTime() - startTime));
+    }
+
+    static void Test5(){
+        long startTime = System.nanoTime();
+
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+
+        for(int i = 0; i<10000; i++){
+            random.nextBoolean();
+        }
+
         System.out.println("Time elapsed in ns: " + (System.nanoTime() - startTime));
     }
     

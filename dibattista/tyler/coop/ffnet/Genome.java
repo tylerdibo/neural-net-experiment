@@ -5,14 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
-import java.io.Serializable;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.io.IOException;
 
-public class Genome implements Serializable{
+public class Genome{
 
     static final int MAX_ADD_NEURON_TRIES = 20;
     static final int SMALL_GENOME_LIMIT = 15;
@@ -320,17 +314,13 @@ public class Genome implements Serializable{
                 }
             }
             
-            if(isolated){
-                conn.active = true;
-            }else{
-                conn.active = false;
-            }
+            conn.active = isolated;
         }
     }
     
     public void mReenableFirst(){
         for(Connection c : links){
-            if(c.active = false){
+            if(!c.active){
                 c.active = true;
                 return;
             }
@@ -338,15 +328,12 @@ public class Genome implements Serializable{
     }
     
     public Genome mateMultipoint(Genome g, int newGenomeId, double fitness1, double fitness2){
-        Genome baby = null;
+        Genome baby;
         boolean p1Better;
         if(fitness1 > fitness2)
             p1Better = true;
         else if(fitness1 == fitness2){
-            if(links.size() < g.links.size())
-                p1Better = true;
-            else
-                p1Better = false;
+            p1Better = links.size() < g.links.size();
         }else
             p1Better = false;
 
@@ -464,7 +451,307 @@ public class Genome implements Serializable{
             }
         }
         
-        baby = new Genome();
+        baby = new Genome(newGenomeId, newNeurons, newLinks);
+
+        return baby;
+    }
+
+    public Genome mateMultipointAvg(Genome g, int newGenomeId, double fitness1, double fitness2){
+        Genome baby;
+        boolean p1Better;
+        if(fitness1 > fitness2)
+            p1Better = true;
+        else if(fitness1 == fitness2){
+            p1Better = links.size() < g.links.size();
+        }else
+            p1Better = false;
+
+        Connection avgConn = new Connection(null, null, 0.0, 0.0, false, 0.0);
+
+        boolean skip;
+        boolean disable = false;
+        double p1Innov, p2Innov;
+        Iterator<Connection> p1Iter = links.iterator();
+        Iterator<Connection> p2Iter = g.links.iterator();
+        Connection p1conn = p1Iter.next();
+        Connection p2conn = p2Iter.next();
+        Connection chosenGene, newGene;
+        List<Neuron> newNeurons = new ArrayList<Neuron>();
+        List<Connection> newLinks = new ArrayList<Connection>();
+        Neuron in, out;
+        Neuron newIn = null;
+        Neuron newOut = null;
+
+        while(p1Iter.hasNext() || p2Iter.hasNext()){
+            avgConn.active = true;
+
+            skip = false;
+
+            if(!p1Iter.hasNext()){
+                chosenGene = p2conn;
+                p2conn = p2Iter.next();
+                if(p1Better)
+                    skip = true;
+            }else if(!p2Iter.hasNext()){
+                chosenGene = p1conn;
+                p1conn = p1Iter.next();
+                if(!p1Better)
+                    skip = true;
+            }else{
+                p1Innov = p1conn.innovationNum;
+                p2Innov = p2conn.innovationNum;
+
+                if(p1Innov == p2Innov){
+                    avgConn.weight = (p1conn.weight+p2conn.weight) / 2.0;
+
+                    if(ThreadLocalRandom.current().nextBoolean()) //TODO: maybe have a ThreadLocalRandom variable
+                        avgConn.in = p1conn.in;
+                    else
+                        avgConn.in = p2conn.in;
+
+                    if(ThreadLocalRandom.current().nextBoolean())
+                        avgConn.out = p1conn.out;
+                    else
+                        avgConn.out = p2conn.out;
+
+                    if(ThreadLocalRandom.current().nextBoolean())
+                        avgConn.isRecurrent = p1conn.isRecurrent;
+                    else
+                        avgConn.isRecurrent = p2conn.isRecurrent;
+
+                    avgConn.innovationNum = p1conn.innovationNum;
+                    avgConn.mutationNum = (p1conn.mutationNum+p2conn.mutationNum) / 2.0;
+
+                    if(!p1conn.active || !p2conn.active){
+                        if(ThreadLocalRandom.current().nextDouble() < 0.75)
+                            avgConn.active = false;
+                    }
+
+                    chosenGene = avgConn;
+                    p1conn = p1Iter.next();
+                    p2conn = p2Iter.next();
+                }else if(p1Innov < p2Innov){
+                    chosenGene = p1conn;
+                    p1conn = p1Iter.next();
+                    if(!p1Better)
+                        skip = true;
+                }else{
+                    chosenGene = p2conn;
+                    p2conn = p2Iter.next();
+                    if(p1Better)
+                        skip = true;
+                }
+            }
+
+            for(Connection c : newLinks){
+                if((c.in.getId() == chosenGene.in.getId()) &&
+                        (c.out.getId() == chosenGene.out.getId()) &&
+                        (c.isRecurrent == chosenGene.isRecurrent)){
+                    skip = true;
+                    break;
+                }
+            }
+
+            if(!skip){
+                in = chosenGene.in;
+                out = chosenGene.out;
+
+                boolean inFound = false;
+                boolean outFound = false;
+                for(Neuron n : newNeurons){
+                    if(n.getId() == in.getId() && !inFound){
+                        inFound = true;
+                        newIn = n;
+                    }
+                    if(n.getId() == out.getId() && !outFound){
+                        outFound = true;
+                        newOut = n;
+                    }
+                    if(inFound && outFound)
+                        break;
+                }
+                if(in.getId() < out.getId()){
+                    if(!inFound){
+                        newIn = new Neuron(in);
+                        newNeurons.add(newIn);
+                    }
+                    if(!outFound){
+                        newOut = new Neuron(out);
+                        newNeurons.add(newOut);
+                    }
+                }else{
+                    if(!outFound){
+                        newOut = new Neuron(out);
+                        newNeurons.add(newOut);
+                    }
+                    if(!inFound){
+                        newIn = new Neuron(in);
+                        newNeurons.add(newIn); //TODO: fix ordering of list
+                    }
+                }
+
+                newGene = new Connection(chosenGene, newIn, newOut);
+
+                newLinks.add(newGene);
+            }
+        }
+
+        baby = new Genome(newGenomeId, newNeurons, newLinks);
+
+        return baby;
+    }
+
+    public Genome mateSinglepoint(Genome g, int newGenomeId){
+        Genome baby;
+        Connection avgConn = new Connection(null, null, 0.0, 0.0, false, 0.0);
+        Connection chosenGene = null;
+        Connection newGene;
+
+        Iterator<Connection> p1Iter;
+        Iterator<Connection> p2Iter;
+        boolean skip = false;
+        boolean disable = false;
+        double p1Innov, p2Innov;
+        int crossPoint;
+        int geneCount = 0;
+        List<Neuron> newNeurons = new ArrayList<Neuron>();
+        List<Connection> newLinks = new ArrayList<Connection>();
+        Neuron in, out;
+        Neuron newIn = null;
+        Neuron newOut = null;
+
+        if(links.size() < g.links.size()){
+            crossPoint = ThreadLocalRandom.current().nextInt(links.size());
+            p1Iter = links.iterator();
+            p2Iter = g.links.iterator();
+        }else{
+            crossPoint = ThreadLocalRandom.current().nextInt(g.links.size());
+            p1Iter = g.links.iterator();
+            p2Iter = links.iterator();
+        }
+        Connection p1conn = p1Iter.next();
+        Connection p2conn = p2Iter.next();
+
+        while(p2Iter.hasNext()){
+            avgConn.active = true;
+
+            if(!p1Iter.hasNext()){
+                chosenGene = p2conn;
+                p2conn = p2Iter.next();
+            }else if(!p2Iter.hasNext()){
+                chosenGene = p1conn;
+                p1conn = p1Iter.next();
+            }else{
+                p1Innov = p1conn.innovationNum;
+                p2Innov = p2conn.innovationNum;
+
+                if(p1Innov == p2Innov){
+                    if(geneCount < crossPoint){
+                        chosenGene = p1conn;
+                    }else if(geneCount > crossPoint){
+                        chosenGene = p2conn;
+                    }else{
+                        avgConn.weight = (p1conn.weight+p2conn.weight) / 2.0;
+
+                        if(ThreadLocalRandom.current().nextBoolean())
+                            avgConn.in = p1conn.in;
+                        else
+                            avgConn.in = p2conn.in;
+
+                        if(ThreadLocalRandom.current().nextBoolean())
+                            avgConn.out = p1conn.out;
+                        else
+                            avgConn.out = p2conn.out;
+
+                        if(ThreadLocalRandom.current().nextBoolean())
+                            avgConn.isRecurrent = p1conn.isRecurrent;
+                        else
+                            avgConn.isRecurrent = p2conn.isRecurrent;
+
+                        avgConn.innovationNum = p1conn.innovationNum;
+                        avgConn.mutationNum = (p1conn.mutationNum+p2conn.mutationNum) /2.0;
+
+                        if(!p1conn.active || !p2conn.active){
+                            avgConn.active = false;
+                        }
+                        chosenGene = avgConn;
+                    }
+
+                    p1conn = p1Iter.next();
+                    p2conn = p2Iter.next();
+                    geneCount++;
+                }else if(p1Innov < p2Innov){
+                    if(geneCount < crossPoint){
+                        chosenGene = p1conn;
+                        p1conn = p1Iter.next();
+                        geneCount++;
+                    }else{
+                        chosenGene = p2conn;
+                        p2conn = p2Iter.next();
+                    }
+                }else{
+                    p2conn = p2Iter.next();
+                    skip = true;
+                }
+            }
+
+            for(Connection c : newLinks){
+                if((c.in.getId() == chosenGene.in.getId()) &&
+                        (c.out.getId() == chosenGene.out.getId()) &&
+                        (c.isRecurrent == chosenGene.isRecurrent)){
+                    skip = true;
+                    break;
+                }
+            }
+
+            if(!skip){
+                in = chosenGene.in;
+                out = chosenGene.out;
+
+                boolean inFound = false;
+                boolean outFound = false;
+                for(Neuron n : newNeurons){
+                    if(n.getId() == in.getId() && !inFound){
+                        inFound = true;
+                        newIn = n;
+                    }
+                    if(n.getId() == out.getId() && !outFound){
+                        outFound = true;
+                        newOut = n;
+                    }
+                    if(inFound && outFound)
+                        break;
+                }
+                if(in.getId() < out.getId()){
+                    if(!inFound){
+                        newIn = new Neuron(in);
+                        newNeurons.add(newIn);
+                    }
+                    if(!outFound){
+                        newOut = new Neuron(out);
+                        newNeurons.add(newOut);
+                    }
+                }else{
+                    if(!outFound){
+                        newOut = new Neuron(out);
+                        newNeurons.add(newOut);
+                    }
+                    if(!inFound){
+                        newIn = new Neuron(in);
+                        newNeurons.add(newIn); //TODO: fix ordering of list
+                    }
+                }
+
+                newGene = new Connection(chosenGene, newIn, newOut);
+
+                newLinks.add(newGene);
+            }
+
+            skip = false;
+
+        }
+
+        baby = new Genome(newGenomeId, newNeurons, newLinks);
 
         return baby;
     }
@@ -488,22 +775,29 @@ public class Genome implements Serializable{
         }
     }
     
-    public Genome clone(){
-        try{
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeObject(this);
-        
-            ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-            ObjectInputStream ois = new ObjectInputStream(bis);
-            return (Genome) ois.readObject();
-        }catch(IOException e){
-            e.printStackTrace();
-            return null;
-        }catch(ClassNotFoundException e){
-            e.printStackTrace();
-            return null;
+    public Genome deepClone(int newGenomeId){
+        Genome newGenome;
+        List<Neuron> neuronsDup = new ArrayList<Neuron>();
+        List<Connection> linksDup = new ArrayList<Connection>();
+        Neuron newNeuron;
+        for(Neuron n : allNeurons){
+            newNeuron = new Neuron(n);
+            n.dup = newNeuron;
+            neuronsDup.add(newNeuron);
         }
+
+        Neuron in, out;
+        Connection newLink;
+        for(Connection c : links){
+            in = c.in.dup;
+            out = c.out.dup;
+
+            newLink = new Connection(c, in, out);
+            linksDup.add(newLink);
+        }
+
+        newGenome = new Genome(newGenomeId, neuronsDup, linksDup);
+        return newGenome;
     }
     
     public double compatibility(Genome g){

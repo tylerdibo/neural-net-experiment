@@ -2,6 +2,7 @@ package dibattista.tyler.coop.ffnet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by Tyler on 15/05/2016.
@@ -10,6 +11,9 @@ public class Species {
 
     static final int DROPOFF_AGE = 15;
     static final double AGE_SIGNIFICANCE = 1.0;
+    static final double MUTATE_ADD_LINK_PROB = 0.05;
+    static final double WEIGHT_MUT_POWER = 2.5;
+    static final int NEWLINK_TRIES = 20;
 
     int id, age, ageOfLastImprovement;
     double avgFitness, maxFitness, maxFitnessEver;
@@ -25,9 +29,31 @@ public class Species {
     }
     
     public void reproduce(int gen, Population pop, List<Species> sortedSpecies){
+        Organism mom, dad, baby;
         Organism theChamp = organisms.get(0);
+        Genome babyGenome;
+        boolean mutStructBaby, mateBaby;
+        boolean outside;
         for(int i = 0; i < expectedOffspring; i++){
-            
+            mutStructBaby = false;
+            mateBaby = false;
+            outside = false;
+
+            if(theChamp.superChampOffspring > 0){
+                mom = theChamp;
+                babyGenome = mom.genome.deepClone(i);
+
+                if(theChamp.superChampOffspring > 1){
+                    if(ThreadLocalRandom.current().nextDouble() < 0.8 || MUTATE_ADD_LINK_PROB == 0.0){
+                        babyGenome.mConnectionWeights(WEIGHT_MUT_POWER, 1.0, false);
+                    }else{
+                        babyGenome.mAddConnection(pop.innovations, pop.currentInnovNum, NEWLINK_TRIES);
+                        mutStructBaby = true;
+                    }
+                }
+
+                baby = new Organism(0.0, babyGenome, gen);
+            }
         }
     }
 
