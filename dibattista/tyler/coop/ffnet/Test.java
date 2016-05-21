@@ -94,8 +94,11 @@ public class Test{
     static void Test4(){
         long startTime = System.nanoTime();
         
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        double highestFitness = 0;
+        
         for(int i = 0; i<10000; i++){
-            ThreadLocalRandom.current().nextBoolean();
+            highestFitness = Math.max(random.nextDouble(), highestFitness);
         }
         
         System.out.println("Time elapsed in ns: " + (System.nanoTime() - startTime));
@@ -105,9 +108,14 @@ public class Test{
         long startTime = System.nanoTime();
 
         ThreadLocalRandom random = ThreadLocalRandom.current();
+        double rand;
+        double highestFitness = 0;
 
         for(int i = 0; i<10000; i++){
-            random.nextBoolean();
+            rand = random.nextDouble();
+            if(rand > highestFitness){
+                highestFitness = rand;
+            }
         }
 
         System.out.println("Time elapsed in ns: " + (System.nanoTime() - startTime));

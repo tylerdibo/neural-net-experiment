@@ -8,6 +8,8 @@ import java.util.List;
 public class Population{
 
     static final double COMPAT_THRESHOLD = 3.0;
+    static final int DROPOFF_AGE = 15;
+    static final int POP_SIZE = 150;
     
     public List<Organism> organisms;
     public List<Innovation> innovations;
@@ -16,11 +18,15 @@ public class Population{
     int currentNodeId;
     double currentInnovNum;
     int lastSpecies;
+    double highestFitness;
+    int highestLastChanged;
     
     public Population(Genome g, int size){
         organisms = new ArrayList<Organism>();
         innovations = new ArrayList<Innovation>();
         species = new ArrayList<Species>();
+        highestFitness = 0.0;
+        highestLastChanged = 0;
 
         spawn(g, size);
     }
@@ -132,16 +138,24 @@ public class Population{
                 return Double.compare(o1.organisms.get(0).originalFitness, o2.organisms.get(0).originalFitness);
             }
         });
-
-        for(Species s : sortedSpecies){
-
+        
+        Organism bestOrg = sortedSpecies.get(0).organisms.get(0);
+        Species bestSpec = sortedSpecies.get(0);
+        
+        if(bestOrg.originalFitness > highestFitness){
+            highestFitness = bestOrg.originalFitness;
+            highestLastChanged = 0;
+        }else{
+            highestLastChanged++;
         }
         
-        
-        
-        for(Species s : species){
+        if(highestLastChanged >= DROPOFF_AGE+5){
+            highestLastChanged = 0;
+            int halfPop = POP_SIZE / 2;
             
+            bestOrg.superChampOffspring = halfPop;
+            bestSpec.expectedOffspring = halfPop;
+            bestSpec.ageOfLastImprovement = bestSpec.age;
         }
     }
-    
 }
