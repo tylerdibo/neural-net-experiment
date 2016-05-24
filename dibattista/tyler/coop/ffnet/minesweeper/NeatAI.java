@@ -10,6 +10,8 @@ import java.util.ArrayList;
  * Created by Tyler on 22/05/2016.
  */
 public class NeatAI implements AIPlayer{
+    
+    static final int GENERATIONS = 20;
 
     Population pop;
     int numTiles, rows, columns;
@@ -46,46 +48,64 @@ public class NeatAI implements AIPlayer{
         ArrayList<Double> outputs;
 
         int iterCount = 0;
-        for(Organism o : pop.organisms) {
-            genome = o.genome;
-            while (game.getState() == GameState.State.IN_PROGRESS) {
-                tileCount = 0;
-                for (int y = 0; y < columns; y++) {
-                    for (int x = 0; x < rows; x++) {
-                        inputs[tileCount++] = (double) game.getCell(y, x);
+        for(int gen = 1; gen <= GENERATIONS; gen++){
+            for(Organism o : pop.organisms) {
+                genome = o.genome;
+                while (game.getState() == GameState.State.IN_PROGRESS) {
+                    tileCount = 0;
+                    for (int y = 0; y < columns; y++) {
+                        for (int x = 0; x < rows; x++) {
+                            inputs[tileCount++] = (double) game.getCell(y, x);
+                        }
                     }
-                }
 
-                genome.loadSensors(inputs);
+                    genome.loadSensors(inputs);
 
-                outputs = genome.calculate();
-                highestId = 0;
-                highest = 0.0;
-                for (Double d : outputs) {
-                    outputId = outputs.indexOf(d);
-                    if (d > highest && inputs[outputId] == -1.0) {
-                        highest = d;
-                        highestId = outputId;
+                    outputs = genome.calculate();
+                    highestId = 0;
+                    highest = 0.0;
+                    for (Double d : outputs) {
+                        outputId = outputs.indexOf(d);
+                        if (d > highest && inputs[outputId] == -1.0) {
+                            highest = d;
+                            highestId = outputId;
+                        }
                     }
+
+                    game.pick(highestId / rows, highestId % rows);
+                    
+                    System.out.println(game);
+                
+                    o.genome.reset();
+
+                    /*try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                    }*/
                 }
+                System.out.println(game + " " + iterCount++);
 
-                game.pick(highestId / rows, highestId % rows);
+                o.fitness = (double) cellsCleared(game) * 10;
 
-                /*try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                }*/
+                //measure fitness with percentage of games won then average number of cells cleared?
+                // or just average number of cells cleared
+
+                game.restart();
             }
-            System.out.println(game + " " + iterCount++);
-
-            o.fitness = (double) cellsCleared(game) * 10;
-
-            //measure fitness with percentage of games won then average number of cells cleared?
-            // or just average number of cells cleared
-
-            game.restart();
+            
+            epoch(gen);
         }
+    }
+    
+    public void epoch(int gen){
+        double total;
+        for(Species s : pop.species){
+            s.getAvgFitness();
+            s.getMaxFitness();
+        }
+        
+        pop.epoch(gen);
     }
 
     private int cellsCleared(GameState game){

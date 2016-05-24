@@ -252,15 +252,18 @@ public class Population{
         }
 
         //Kill marked organisms
-        for(Organism o : organisms){
-            if(o.eliminate){
-                o.species.organisms.remove(o);
-                organisms.remove(o);
+        Organism currentOrg;
+        for(Iterator<Organism> o = organisms.iterator(); o.hasNext(); ){
+            currentOrg = o.next();
+            if(currentOrg.eliminate){
+                currentOrg.species.organisms.remove(currentOrg);
+                o.remove();
             }
         }
 
         //reproduction
-        for(Species s : species){
+        ArrayList<Species> oldSpecies = (ArrayList<Species>)species.clone();
+        for(Species s : oldSpecies){
             s.reproduce(gen, this, sortedSpecies);
         }
 

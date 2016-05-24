@@ -267,6 +267,30 @@ public class Species {
 
         return skim;
     }
+    
+    public double getAvgFitness(){
+        double total = 0.0;
+        for(Organism o : organisms){
+            total += o.fitness;
+        }
+        
+        avgFitness = total / organisms.size();
+        
+        return avgFitness;
+    }
+    
+    public double getMaxFitness(){
+        double max = 0.0;
+        for(Organism o : organisms){
+            if(o.fitness > max){
+                max = o.fitness;
+            }
+        }
+        
+        maxFitness = max;
+        
+        return max;
+    }
 
     public void addOrganism(Organism o){
         organisms.add(o);

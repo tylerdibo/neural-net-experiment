@@ -16,7 +16,7 @@ public class NeatMain {
 
         long startTime = System.nanoTime(); //store starting time to determine total running time
 
-        GameState game = Windows7GameState.createIntermediateGame();
+        GameState game = NativeGameState.createIntermediateGame();
 
         AIPlayer neat = new NeatAI(16, 16);
         //game.pick(15,15);
