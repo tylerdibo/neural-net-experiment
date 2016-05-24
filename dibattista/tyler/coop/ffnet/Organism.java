@@ -2,16 +2,17 @@ package dibattista.tyler.coop.ffnet;
 
 public class Organism{
     
-    double fitness;
+    public double fitness;
     double originalFitness;
     double expectedOffspring;
     double highFit;
-    Genome genome;
+    public Genome genome;
     int generation;
     int superChampOffspring;
     Species species;
-    boolean popChamp, popChampChild;
+    boolean popChamp, popChampChild, champion;
     boolean mutStructBaby, mateBaby;
+    boolean eliminate;
     
     public Organism(double fitness, Genome g, int gen){
         genome = g;
@@ -26,6 +27,8 @@ public class Organism{
         highFit = 0.0;
         mutStructBaby = false;
         mateBaby = false;
+        eliminate = false;
+        champion = false;
     }
     
 }

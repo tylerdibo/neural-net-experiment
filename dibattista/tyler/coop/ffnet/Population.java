@@ -1,15 +1,17 @@
 package dibattista.tyler.coop.ffnet;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Logger;
 
 public class Population{
 
+    private final static Logger LOGGER = Logger.getLogger(Population.class.getName());
+
     static final double COMPAT_THRESHOLD = 3.0;
     static final int DROPOFF_AGE = 15;
-    static final int POP_SIZE = 150;
+    public static final int POP_SIZE = 10; //150
+    static final int BABIES_STOLEN = 0;
     
     public List<Organism> organisms;
     public List<Innovation> innovations;
@@ -71,7 +73,7 @@ public class Population{
                     }
                 }
 
-                if(comparison == null){
+                if(comparison != null){
                     newSpecies = new Species(++speciesCount);
                     species.add(newSpecies);
                     newSpecies.addOrganism(o);
@@ -89,7 +91,7 @@ public class Population{
         int totalOrganisms = organisms.size();
 
         for(Species s : species){
-            s.adjustFitness(); //TODO: finish this
+            s.adjustFitness();
         }
 
         for(Organism o : organisms){
@@ -131,7 +133,7 @@ public class Population{
             }
         }
 
-        List<Species> sortedSpecies = (List<Species>) species.clone();
+        ArrayList<Species> sortedSpecies = (ArrayList<Species>) species.clone();
         Collections.sort(sortedSpecies, new Comparator<Species>() {
             @Override
             public int compare(Species o1, Species o2) {
@@ -152,10 +154,141 @@ public class Population{
         if(highestLastChanged >= DROPOFF_AGE+5){
             highestLastChanged = 0;
             int halfPop = POP_SIZE / 2;
-            
-            bestOrg.superChampOffspring = halfPop;
-            bestSpec.expectedOffspring = halfPop;
+
+            for(Species s : sortedSpecies){
+                s.expectedOffspring = 0;
+            }
+
             bestSpec.ageOfLastImprovement = bestSpec.age;
+            if(sortedSpecies.size() == 1){
+                bestOrg.superChampOffspring = halfPop;
+                bestSpec.expectedOffspring = halfPop;
+            }else{
+                bestOrg.superChampOffspring = POP_SIZE;
+                bestSpec.expectedOffspring = halfPop;
+
+                Species species2 = sortedSpecies.get(1);
+                species2.organisms.get(0).superChampOffspring = POP_SIZE - halfPop;
+                species2.expectedOffspring = POP_SIZE - halfPop;
+                species2.ageOfLastImprovement = species2.age;
+            }
+        }else if(BABIES_STOLEN > 0){ //transfer babies of weaker species to stronger ones
+            int stolenBabies = 0;
+            ListIterator<Species> speciesIter = sortedSpecies.listIterator(sortedSpecies.size());
+            Species s;
+            while(speciesIter.hasPrevious() && stolenBabies < BABIES_STOLEN){
+                s = speciesIter.previous();
+                if(s.age > 5 && s.expectedOffspring > 2){
+                    if((s.expectedOffspring-1) >= BABIES_STOLEN - stolenBabies){
+                        s.expectedOffspring -= BABIES_STOLEN - stolenBabies;
+                        stolenBabies = BABIES_STOLEN;
+                    }else{
+                        stolenBabies += s.expectedOffspring-1;
+                        s.expectedOffspring = 1;
+                    }
+                }
+            }
+
+            int fifthStolen = BABIES_STOLEN / 5;
+            int tenthStolen = BABIES_STOLEN / 10;
+            speciesIter = sortedSpecies.listIterator();
+            do{
+                s = speciesIter.next();
+            }while(s.lastImproved() > DROPOFF_AGE && speciesIter.hasNext());
+
+            if(stolenBabies >= fifthStolen && speciesIter.hasNext()){
+                s.organisms.get(0).superChampOffspring = fifthStolen;
+                s.expectedOffspring += fifthStolen;
+                stolenBabies -= fifthStolen;
+            }
+
+            do{
+                s = speciesIter.next();
+            }while(s.lastImproved() > DROPOFF_AGE && speciesIter.hasNext());
+
+            if(stolenBabies >= fifthStolen && speciesIter.hasNext()){
+                s.organisms.get(0).superChampOffspring = fifthStolen;
+                s.expectedOffspring += fifthStolen;
+                stolenBabies -= fifthStolen;
+            }
+            do{
+                s = speciesIter.next();
+            }while(s.lastImproved() > DROPOFF_AGE && speciesIter.hasNext());
+
+            if(stolenBabies >= tenthStolen && speciesIter.hasNext()){
+                s.organisms.get(0).superChampOffspring = tenthStolen;
+                s.expectedOffspring += tenthStolen;
+                stolenBabies -= tenthStolen;
+            }
+
+            do{
+                s = speciesIter.next();
+            }while(s.lastImproved() > DROPOFF_AGE && speciesIter.hasNext());
+
+            while(stolenBabies > 0 && speciesIter.hasNext()){
+                if(ThreadLocalRandom.current().nextDouble() > 0.1){
+                    if(stolenBabies > 3){
+                        s.organisms.get(0).superChampOffspring = 3;
+                        s.expectedOffspring += 3;
+                        stolenBabies -= 3;
+                    }else{
+                        s.organisms.get(0).superChampOffspring = stolenBabies;
+                        s.expectedOffspring += stolenBabies;
+                        stolenBabies = 0;
+                    }
+                }
+
+                do{
+                    s = speciesIter.next();
+                }while(s.lastImproved() > DROPOFF_AGE && speciesIter.hasNext());
+            }
+
+            if(stolenBabies > 0){
+                s = sortedSpecies.get(0);
+                s.organisms.get(0).superChampOffspring += stolenBabies;
+                s.expectedOffspring += stolenBabies;
+                stolenBabies = 0;
+            }
         }
+
+        //Kill marked organisms
+        for(Organism o : organisms){
+            if(o.eliminate){
+                o.species.organisms.remove(o);
+                organisms.remove(o);
+            }
+        }
+
+        //reproduction
+        for(Species s : species){
+            s.reproduce(gen, this, sortedSpecies);
+        }
+
+        for(Organism o : organisms){
+            o.species.organisms.remove(o);
+        }
+        organisms.clear();
+
+        int orgCount = 0;
+        for(Species s : species){
+            if(s.organisms.isEmpty()){
+                species.remove(s);
+            }else{
+                if(s.novel){
+                    s.novel = false;
+                }else{
+                    s.age++;
+                }
+
+                for(Organism o : s.organisms){
+                    o.genome.id = orgCount++;
+                    organisms.add(o);
+                }
+            }
+        }
+
+        LOGGER.info("Epoch complete");
+
+        innovations.clear();
     }
 }

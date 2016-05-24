@@ -60,8 +60,8 @@ public class Genome{
         }
     }
 
-    public List<Double> calculate(){
-        List<Double> outputValues = new ArrayList<Double>();
+    public ArrayList<Double> calculate(){
+        ArrayList<Double> outputValues = new ArrayList<Double>();
         for(Neuron n : hiddenNeurons){
             n.calculate();
         }
@@ -105,7 +105,7 @@ public class Genome{
         
         if (links.size() < SMALL_GENOME_LIMIT){
             for(Connection c : links){
-                if(c.in.type != Neuron.NeuronTypes.BIAS && c.active && (Math.random() > ADD_NEURON_OLD_BIAS)) { //TODO: more accurate random function?
+                if(c.in.type != Neuron.NeuronTypes.BIAS && c.active && (ThreadLocalRandom.current().nextDouble() > ADD_NEURON_OLD_BIAS)){
                     conn = c;
                     found = true;
                     break;
@@ -130,7 +130,7 @@ public class Genome{
 
         conn.active = false;
 
-        for(Innovation i : innovs){ //TODO: maybe create the connections after, and just log when its the same innov
+        for(Innovation i : innovs){
             if((i.type == Innovation.InnovType.NEWNODE) && (i.inNodeId == conn.in.getId()) && (i.outNodeId == conn.out.getId()) && (i.oldLinkInnov == conn.innovationNum)){
                 Neuron newNeuron = new Neuron(Neuron.NeuronTypes.HIDDEN, nodeId);
 
@@ -196,7 +196,6 @@ public class Genome{
                             continue recurLoop;
                         }
                     }
-                    //TODO: check if network contains infinite loop
                     recurConfirm = isRecur(node1, node2, thresh);
                     if(recurConfirm) {
                         found = true;
@@ -244,7 +243,7 @@ public class Genome{
             }
         }
 
-        newWeight = ThreadLocalRandom.current().nextDouble(-MAX_NEW_CONNECTION_WEIGHT, MAX_NEW_CONNECTION_WEIGHT); //TODO: double check this
+        newWeight = ThreadLocalRandom.current().nextDouble(-MAX_NEW_CONNECTION_WEIGHT, MAX_NEW_CONNECTION_WEIGHT);
         conn = new Connection(node1, node2, newWeight, currentInnov, recur, newWeight);
         node2.addConnection(conn);
 
@@ -256,7 +255,6 @@ public class Genome{
 
     public void mConnectionWeights(double power, double rate, boolean coldGauss){
         //modify the weight of a connection
-        //conn.weight = Math.random();
         boolean severe = ThreadLocalRandom.current().nextBoolean();
         double gaussPoint, coldGaussPoint;
         double endPart = (double)links.size()*0.8;
@@ -793,6 +791,7 @@ public class Genome{
             out = c.out.dup;
 
             newLink = new Connection(c, in, out);
+            out.addConnection(newLink);
             linksDup.add(newLink);
         }
 
@@ -836,11 +835,14 @@ public class Genome{
     }
     
     public int getLastNodeId(){
-        return (allNeurons.get(allNeurons.size()).getId()) + 1;
+        return (allNeurons.get(allNeurons.size() - 1).getId()) + 1;
     }
     
     public double getLastInnovNum(){
-        return (links.get(links.size()).innovationNum) + 1.0;
+        if(links.isEmpty())
+            return 0.0;
+        else
+            return (links.get(links.size() - 1).innovationNum) + 1.0;
     }
 
     public void addNeuron(Neuron neuron){ //TODO: sort neurons
@@ -850,6 +852,7 @@ public class Genome{
                 allNeurons.add(neuron);
                 break;
             case HIDDEN:
+
                 hiddenNeurons.add(neuron);
                 nonInputNeurons.add(neuron);
                 allNeurons.add(neuron);

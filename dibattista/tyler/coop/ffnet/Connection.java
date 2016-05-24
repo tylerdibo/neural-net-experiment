@@ -12,7 +12,7 @@ public class Connection {
     boolean isRecurrent;
     boolean timeDelay;
     double innovationNum;
-    double mutationNum; //TODO: make sure nothing skips this
+    double mutationNum;
 
     public Connection(Neuron in, Neuron out, double weight, double innovation, boolean recurrent, double mutation){
         this.in = in;

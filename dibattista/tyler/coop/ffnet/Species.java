@@ -1,6 +1,8 @@
 package dibattista.tyler.coop.ffnet;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -23,6 +25,7 @@ public class Species {
     static final double MATE_MULTIPOINT_AVG_PROB = 0.4;
     static final double MATE_SINGLEPOINT_PROB = 0.0;
     static final double MATE_ONLY_PROB = 0.2;
+    static final double SURVIVAL_THRESH = 0.2;
     static final int NEWLINK_TRIES = 20;
 
     int id, age, ageOfLastImprovement;
@@ -210,12 +213,36 @@ public class Species {
             if(ageDebt >= 1){
                 o.fitness = o.fitness/100;
             }
-
             if(age <= 10)
                 o.fitness = o.fitness * AGE_SIGNIFICANCE;
-
             if(o.fitness < 0.0)
                 o.fitness = 0.0001;
+
+            o.fitness = o.fitness / organisms.size();
+        }
+
+        Collections.sort(organisms, new Comparator<Organism>() {
+            @Override
+            public int compare(Organism o1, Organism o2) {
+                return Double.compare(o1.fitness, o2.fitness);
+            }
+        });
+
+        Organism champ = organisms.get(0);
+        if(champ.originalFitness > maxFitnessEver){
+            ageOfLastImprovement = age;
+            maxFitnessEver = champ.originalFitness;
+        }
+
+        int numParents = (int) Math.floor((SURVIVAL_THRESH * (double) organisms.size()) + 1.0);
+
+        champ.champion = true;
+        int count = 1;
+        for(Organism o : organisms){
+            if(count > numParents){
+                o.eliminate = true;
+            }
+            count++;
         }
     }
 
@@ -243,6 +270,10 @@ public class Species {
 
     public void addOrganism(Organism o){
         organisms.add(o);
+    }
+
+    public int lastImproved(){
+        return age - ageOfLastImprovement;
     }
 
 }

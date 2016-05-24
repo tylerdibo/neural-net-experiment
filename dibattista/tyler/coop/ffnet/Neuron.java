@@ -63,7 +63,7 @@ public class Neuron {
         if (!activated) {
             for(Connection c : connections){
                 double a;
-                if(c.timeDelay){ //TODO: make sure this works
+                if(c.timeDelay){ //TODO: test recurrency
                     a = (c.in.lastActivatedValue * c.weight);
                 }else {
                     a = (c.in.activatedValue * c.weight);
