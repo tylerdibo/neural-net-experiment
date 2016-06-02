@@ -10,7 +10,7 @@ public class Population{
 
     static final double COMPAT_THRESHOLD = 3.0;
     static final int DROPOFF_AGE = 15;
-    public static final int POP_SIZE = 10; //150
+    public static final int POP_SIZE = 50; //150
     static final int BABIES_STOLEN = 0;
     
     public List<Organism> organisms;
@@ -137,7 +137,7 @@ public class Population{
         Collections.sort(sortedSpecies, new Comparator<Species>() {
             @Override
             public int compare(Species o1, Species o2) {
-                return Double.compare(o1.organisms.get(0).originalFitness, o2.organisms.get(0).originalFitness);
+                return Double.compare(o2.organisms.get(0).originalFitness, o1.organisms.get(0).originalFitness);
             }
         });
         
@@ -273,9 +273,12 @@ public class Population{
         organisms.clear();
 
         int orgCount = 0;
-        for(Species s : species){
+        Iterator<Species> iterSpec = species.iterator();
+        Species s;
+        while(iterSpec.hasNext()){
+            s = iterSpec.next();
             if(s.organisms.isEmpty()){
-                species.remove(s);
+                iterSpec.remove();
             }else{
                 if(s.novel){
                     s.novel = false;

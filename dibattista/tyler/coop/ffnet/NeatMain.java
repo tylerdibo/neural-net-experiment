@@ -18,7 +18,7 @@ public class NeatMain {
 
         GameState game = NativeGameState.createIntermediateGame();
 
-        AIPlayer neat = new NeatAI(16, 16);
+        NeatAI neat = new NeatAI(16, 16);
         //game.pick(15,15);
         neat.solve(game);
 

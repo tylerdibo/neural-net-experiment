@@ -30,7 +30,7 @@ public class NeatAI implements AIPlayer{
         for(int i = 0; i < numTiles; i++) {
             n = new Neuron(Neuron.NeuronTypes.OUTPUT, i+numTiles);
             g.addNeuron(n);
-            conn = new Connection(g.inputNeurons.get(i), n, 1.0, 0.0, false, 1.0);
+            conn = new Connection(g.inputNeurons.get(i), n, 1.0, i + (numTiles*2), false, 1.0);
             n.addConnection(conn);
             g.links.add(conn);
         }
@@ -46,9 +46,11 @@ public class NeatAI implements AIPlayer{
         double highest;
         Genome genome;
         ArrayList<Double> outputs;
+        double totalGenFitness;
 
         int iterCount = 0;
         for(int gen = 1; gen <= GENERATIONS; gen++){
+            totalGenFitness = 0.0;
             for(Organism o : pop.organisms) {
                 genome = o.genome;
                 while (game.getState() == GameState.State.IN_PROGRESS) {
@@ -62,8 +64,9 @@ public class NeatAI implements AIPlayer{
                     genome.loadSensors(inputs);
 
                     outputs = genome.calculate();
-                    highestId = 0;
+
                     highest = 0.0;
+                    highestId = -1;
                     for (Double d : outputs) {
                         outputId = outputs.indexOf(d);
                         if (d > highest && inputs[outputId] == -1.0) {
@@ -72,34 +75,42 @@ public class NeatAI implements AIPlayer{
                         }
                     }
 
-                    game.pick(highestId / rows, highestId % rows);
-                    
-                    System.out.println(game);
-                
+                    if(highestId < 0){
+                        System.out.println("No open output found.");
+                    }else{
+                        game.pick(highestId / rows, highestId % rows);
+                    }
+
+                    /*System.out.print(game);
+                    System.out.println(" Click at row: " + (highestId / rows) + " column: " + (highestId % rows));*/
+
                     o.genome.reset();
-
-                    /*try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
-                        Thread.currentThread().interrupt();
-                    }*/
                 }
-                System.out.println(game + " " + iterCount++);
 
-                o.fitness = (double) cellsCleared(game) * 10;
+                o.fitness = (double) cellsCleared(inputs) * 10;
+                totalGenFitness += o.fitness;
+
+                //System.out.println(game + " " + (++iterCount) + " ended, fitness: " + o.fitness);
 
                 //measure fitness with percentage of games won then average number of cells cleared?
                 // or just average number of cells cleared
 
+                /*try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }*/
+
                 game.restart();
             }
+
+            System.out.println("Gen " + gen + " average fitness " + (totalGenFitness / pop.organisms.size()));
             
             epoch(gen);
         }
     }
     
     public void epoch(int gen){
-        double total;
         for(Species s : pop.species){
             s.getAvgFitness();
             s.getMaxFitness();
@@ -108,13 +119,11 @@ public class NeatAI implements AIPlayer{
         pop.epoch(gen);
     }
 
-    private int cellsCleared(GameState game){
+    private int cellsCleared(double[] inputs){
         int cellCount = 0;
-        for (int y = 0; y < columns; y++) {
-            for (int x = 0; x < rows; x++) {
-                if(game.getCell(y, x) == -1){
-                    cellCount++;
-                }
+        for(int j = 0; j < inputs.length; j++){
+            if(inputs[j] != -1){
+                cellCount++;
             }
         }
 

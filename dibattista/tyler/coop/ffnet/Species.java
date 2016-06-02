@@ -48,6 +48,7 @@ public class Species {
     }
     
     public void reproduce(int gen, Population pop, List<Species> sortedSpecies){
+        ArrayList<Organism> newOrgs = new ArrayList<Organism>();
         Organism mom, dad, baby;
         Organism theChamp = organisms.get(0);
         Genome babyGenome;
@@ -98,7 +99,7 @@ public class Species {
                 }else if(ThreadLocalRandom.current().nextDouble() < MUTATE_ADD_LINK_PROB){
                     babyGenome.mAddConnection(pop.innovations, pop.currentInnovNum, NEWLINK_TRIES);
                     mutStructBaby = true;
-                }else{ //if no structual mutation, do others
+                }else{ //if no structural mutation, do others
                     if(ThreadLocalRandom.current().nextDouble() < MUTATE_LINK_WEIGHTS_PROB){
                         babyGenome.mConnectionWeights(WEIGHT_MUT_POWER, 1.0, false);
                     }
@@ -125,7 +126,10 @@ public class Species {
                         if(randMult > 1.0)
                             randMult = 1.0;
                         
-                        randSpeciesNum = (int) Math.round(randMult*(sortedSpecies.size()-1.0));
+                        randSpeciesNum = (int) Math.floor((randMult*(sortedSpecies.size()-1.0))+0.5);
+                        if(randSpeciesNum < 0)
+                            randSpeciesNum = 0;
+                        System.out.println(randSpeciesNum + "randMult = " + randMult + "sortspec.size = " + sortedSpecies.size());
                         randSpecies = sortedSpecies.get(randSpeciesNum);
                         giveUp++;
                     }
@@ -187,7 +191,7 @@ public class Species {
                     if(compOrg == null){
                         continue;
                     }else if(baby.genome.compatibility(compOrg.genome) < Population.COMPAT_THRESHOLD){
-                        s.addOrganism(baby);
+                        newOrgs.add(baby);
                         baby.species = s;
                         foundSpecies = true;
                         break;
@@ -202,6 +206,8 @@ public class Species {
                 }
             }
         }
+
+        organisms.addAll(newOrgs);
     }
 
     public void adjustFitness(){
@@ -224,7 +230,7 @@ public class Species {
         Collections.sort(organisms, new Comparator<Organism>() {
             @Override
             public int compare(Organism o1, Organism o2) {
-                return Double.compare(o1.fitness, o2.fitness);
+                return Double.compare(o2.fitness, o1.fitness);
             }
         });
 

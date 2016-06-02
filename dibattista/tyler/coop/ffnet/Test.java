@@ -7,8 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Test{
     
     public static void main(String[] args){
-        Test4();
-        Test5();
+        TestMating();
     }
 
     static void Test1(String[] args){
@@ -119,6 +118,60 @@ public class Test{
         }
 
         System.out.println("Time elapsed in ns: " + (System.nanoTime() - startTime));
+    }
+
+    static void TestMating(){
+        int numTiles = 9;
+        Genome g1 = new Genome();
+        Genome g2 = new Genome();
+        for(int i = 0; i < numTiles; i++) {
+            g1.addNeuron(new Neuron(Neuron.NeuronTypes.INPUT, i));
+            g2.addNeuron(new Neuron(Neuron.NeuronTypes.INPUT, i));
+        }
+
+        Connection conn;
+        Neuron n;
+        for(int i = 0; i < numTiles; i++) {
+            n = new Neuron(Neuron.NeuronTypes.OUTPUT, i+numTiles);
+            g1.addNeuron(n);
+            conn = new Connection(g1.inputNeurons.get(i), n, 1.0, 0.0, false, 1.0);
+            n.addConnection(conn);
+            g1.links.add(conn);
+        }
+        for(int i = 0; i < numTiles; i++) {
+            n = new Neuron(Neuron.NeuronTypes.OUTPUT, i+numTiles);
+            g2.addNeuron(n);
+            conn = new Connection(g2.inputNeurons.get(i), n, 1.0, 0.0, false, 1.0);
+            n.addConnection(conn);
+            g2.links.add(conn);
+        }
+
+        if(g1.allNeurons.size() != 18){
+            System.out.println("g1 not complete");
+        }
+        if(g2.allNeurons.size() != 18){
+            System.out.println("g2 not complete");
+        }
+
+        Genome gSing = g1.mateSinglepoint(g2, 3);
+        Genome gMult = g1.mateMultipoint(g2, 4, 100, 100);
+        Genome gAvg = g1.mateMultipointAvg(g2, 5, 100, 100);
+
+        if(gSing.allNeurons.size() != 18){
+            System.out.println("gSing not complete, size: " + gSing.allNeurons.size());
+        }
+        if(gMult.allNeurons.size() != 18){
+            System.out.println("gMult not complete, size: " + gMult.allNeurons.size());
+        }
+        if(gAvg.allNeurons.size() != 18){
+            System.out.println("gAvg not complete, size: " + gAvg.allNeurons.size());
+        }
+
+        System.out.println("g1 = " + g1.allNeurons.size());
+        System.out.println("g2 = " + g2.allNeurons.size());
+        System.out.println("gSing = " + gSing.allNeurons.size());
+        System.out.println("gMult = " + gMult.allNeurons.size());
+        System.out.println("gAvg = " + gAvg.allNeurons.size());
     }
     
 }

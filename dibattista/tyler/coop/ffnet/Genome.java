@@ -144,7 +144,7 @@ public class Genome{
                 
                 addNeuron(newNeuron);
                 
-                LOGGER.info("New neuron added in connection number " + conn.innovationNum + " matching Innovation " + i.innovNum1);
+                //LOGGER.info("New neuron added in connection number " + conn.innovationNum + " matching Innovation " + i.innovNum1);
                 return;
             }
         }
@@ -164,7 +164,7 @@ public class Genome{
 
         innovs.add(new Innovation(conn.in.getId(), conn.out.getId(), currentInnov - 2.0, currentInnov - 1.0, newNeuron.getId(), conn.innovationNum));
         
-        LOGGER.info("New neuron added in connection number " + conn.innovationNum);
+        //LOGGER.info("New neuron added in connection number " + conn.innovationNum);
     }
 
     public void mAddConnection(List<Innovation> innovs, double currentInnov, int tries){
@@ -238,7 +238,7 @@ public class Genome{
                 conn = new Connection(node1, node2, i.newLinkWeight, i.innovNum1, recur, 0);
                 node2.addConnection(conn);
                 links.add(conn);
-                LOGGER.info("New connection added between " + node1.getId() + " and " + node2.getId() + " isRecurrent = " + recur + " matching Innovation " + i.innovNum1);
+                //LOGGER.info("New connection added between " + node1.getId() + " and " + node2.getId() + " isRecurrent = " + recur + " matching Innovation " + i.innovNum1);
                 return;
             }
         }
@@ -250,7 +250,7 @@ public class Genome{
         innovs.add(new Innovation(node1.getId(), node2.getId(), currentInnov, newWeight, recur));
         
         links.add(conn);
-        LOGGER.info("New connection added between " + node1.getId() + " and " + node2.getId() + " isRecurrent = " + recur);
+        //LOGGER.info("New connection added between " + node1.getId() + " and " + node2.getId() + " isRecurrent = " + recur);
     }
 
     public void mConnectionWeights(double power, double rate, boolean coldGauss){
@@ -293,7 +293,7 @@ public class Genome{
             
             i++;
             
-            LOGGER.finer("Connection " + c.innovationNum + " mutated to weight " + c.weight);
+            //LOGGER.finer("Connection " + c.innovationNum + " mutated to weight " + c.weight);
         }
     }
     
@@ -348,18 +348,25 @@ public class Genome{
         Neuron in, out;
         Neuron newIn = null;
         Neuron newOut = null;
-        
-        while(p1Iter.hasNext() || p2Iter.hasNext()){
+
+        boolean p1HasNext = true, p2HasNext = true;
+
+        while(p1HasNext || p2HasNext){
+            p1HasNext = p1Iter.hasNext();
+            p2HasNext = p2Iter.hasNext();
+
             skip = false;
             
-            if(!p1Iter.hasNext()){
+            if(!p1HasNext){
                 chosenGene = p2conn;
-                p2conn = p2Iter.next();
+                if(p2HasNext)
+                    p2conn = p2Iter.next();
                 if(p1Better)
                     skip = true;
-            }else if(!p2Iter.hasNext()){
+            }else if(!p2HasNext){
                 chosenGene = p1conn;
-                p1conn = p1Iter.next();
+                if(p1HasNext)
+                    p1conn = p1Iter.next();
                 if(!p1Better)
                     skip = true;
             }else{
@@ -445,6 +452,7 @@ public class Genome{
                     newGene.active = false;
                     disable = false;
                 }
+                newOut.addConnection(newGene);
                 newLinks.add(newGene);
             }
         }
@@ -480,19 +488,25 @@ public class Genome{
         Neuron newIn = null;
         Neuron newOut = null;
 
-        while(p1Iter.hasNext() || p2Iter.hasNext()){
+        boolean p1HasNext = true, p2HasNext = true;
+
+        while(p1HasNext || p2HasNext){
+            p1HasNext = p1Iter.hasNext();
+            p2HasNext = p2Iter.hasNext();
             avgConn.active = true;
 
             skip = false;
 
-            if(!p1Iter.hasNext()){
+            if(!p1HasNext){
                 chosenGene = p2conn;
-                p2conn = p2Iter.next();
+                if(p2HasNext)
+                    p2conn = p2Iter.next();
                 if(p1Better)
                     skip = true;
-            }else if(!p2Iter.hasNext()){
+            }else if(!p2HasNext){
                 chosenGene = p1conn;
-                p1conn = p1Iter.next();
+                if(p1HasNext)
+                    p1conn = p1Iter.next();
                 if(!p1Better)
                     skip = true;
             }else{
@@ -526,6 +540,8 @@ public class Genome{
                     }
 
                     chosenGene = avgConn;
+
+                    //if()
                     p1conn = p1Iter.next();
                     p2conn = p2Iter.next();
                 }else if(p1Innov < p2Innov){
@@ -589,7 +605,7 @@ public class Genome{
                 }
 
                 newGene = new Connection(chosenGene, newIn, newOut);
-
+                newOut.addConnection(newGene);
                 newLinks.add(newGene);
             }
         }
@@ -630,15 +646,22 @@ public class Genome{
         Connection p1conn = p1Iter.next();
         Connection p2conn = p2Iter.next();
 
-        while(p2Iter.hasNext()){
+        boolean p1HasNext = true, p2HasNext = true;
+
+        while(p1HasNext || p2HasNext){
+            p1HasNext = p1Iter.hasNext();
+            p2HasNext = p2Iter.hasNext();
+
             avgConn.active = true;
 
-            if(!p1Iter.hasNext()){
+            if(!p1HasNext){
                 chosenGene = p2conn;
-                p2conn = p2Iter.next();
-            }else if(!p2Iter.hasNext()){
+                if(p2HasNext)
+                    p2conn = p2Iter.next();
+            }else if(!p2HasNext){
                 chosenGene = p1conn;
-                p1conn = p1Iter.next();
+                if(p1HasNext)
+                    p1conn = p1Iter.next();
             }else{
                 p1Innov = p1conn.innovationNum;
                 p2Innov = p2conn.innovationNum;
@@ -741,7 +764,7 @@ public class Genome{
                 }
 
                 newGene = new Connection(chosenGene, newIn, newOut);
-
+                newOut.addConnection(newGene);
                 newLinks.add(newGene);
             }
 
@@ -852,7 +875,6 @@ public class Genome{
                 allNeurons.add(neuron);
                 break;
             case HIDDEN:
-
                 hiddenNeurons.add(neuron);
                 nonInputNeurons.add(neuron);
                 allNeurons.add(neuron);
