@@ -207,7 +207,10 @@ public class Species {
             }
         }
 
-        organisms.addAll(newOrgs);
+        //adding new orgs to their species
+        for(Organism o : newOrgs){
+            o.species.addOrganism(o);
+        }
     }
 
     public void adjustFitness(){
@@ -256,6 +259,7 @@ public class Species {
         int expOffIntPart;
         double expOffFracPart;
         double skimIntPart;
+        expectedOffspring = 0;
 
         for(Organism o : organisms){
             expOffIntPart = (int) Math.floor(o.expectedOffspring);

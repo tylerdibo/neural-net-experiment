@@ -179,7 +179,8 @@ public class Windows7GameState implements GameState {
 			mouseClick(r[0] + 250, r[1] + 240);
 		}else{
 			User32.INSTANCE.GetWindowRect(hWnd, r);
-			mouseClick(r[0] + 350, r[1] + 200);
+			mouseClick(r[0] + 200, r[1] + 200); //Restart game
+			//mouseClick(r[0] + 350, r[1] + 200); //New game
 		}
 		state = State.IN_PROGRESS;
 

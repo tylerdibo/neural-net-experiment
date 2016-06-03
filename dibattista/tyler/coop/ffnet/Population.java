@@ -10,7 +10,7 @@ public class Population{
 
     static final double COMPAT_THRESHOLD = 3.0;
     static final int DROPOFF_AGE = 15;
-    public static final int POP_SIZE = 50; //150
+    public static final int POP_SIZE = 150; //150
     static final int BABIES_STOLEN = 0;
     
     public List<Organism> organisms;
@@ -107,7 +107,7 @@ public class Population{
         int totalExpected = 0;
         for(Species s : species){
             skim = s.countOffspring(skim);
-            totalExpected += s.expectedOffspring;
+            totalExpected += s.expectedOffspring; //TODO this isn't right
         }
 
         if(totalExpected < totalOrganisms){
@@ -142,6 +142,7 @@ public class Population{
         });
         
         Organism bestOrg = sortedSpecies.get(0).organisms.get(0);
+        System.out.println("best fitness " + bestOrg.originalFitness);
         Species bestSpec = sortedSpecies.get(0);
         
         if(bestOrg.originalFitness > highestFitness){

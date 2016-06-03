@@ -19,14 +19,7 @@ public class NeatMain {
         GameState game = NativeGameState.createIntermediateGame();
 
         NeatAI neat = new NeatAI(16, 16);
-        //game.pick(15,15);
         neat.solve(game);
-
-        try {
-            Thread.sleep(500);
-        } catch(InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
 
         System.out.println("Time elapsed in ns: " + (System.nanoTime()-startTime));
     }

@@ -2,6 +2,7 @@ package dibattista.tyler.coop.ffnet.minesweeper;
 
 import dibattista.tyler.coop.ffnet.*;
 import minesweeper.ai.games.GameState;
+import minesweeper.ai.games.Windows7GameState;
 import minesweeper.ai.players.AIPlayer;
 
 import java.util.ArrayList;
@@ -11,9 +12,9 @@ import java.util.ArrayList;
  */
 public class NeatAI implements AIPlayer{
     
-    static final int GENERATIONS = 20;
+    static final int GENERATIONS = 999999;
 
-    Population pop;
+    public Population pop;
     int numTiles, rows, columns;
 
     public NeatAI(int rows, int columns){
@@ -69,17 +70,17 @@ public class NeatAI implements AIPlayer{
                     highestId = -1;
                     for (Double d : outputs) {
                         outputId = outputs.indexOf(d);
-                        if (d > highest && inputs[outputId] == -1.0) {
+                        if (d > highest && inputs[outputId] == -1) {
                             highest = d;
                             highestId = outputId;
                         }
                     }
 
-                    if(highestId < 0){
-                        System.out.println("No open output found.");
-                    }else{
-                        game.pick(highestId / rows, highestId % rows);
-                    }
+                    //if(highestId < 0){
+                        //System.out.println("No open output found.");
+                    //}else{
+                    game.pick(highestId / rows, highestId % rows);
+                    //}
 
                     /*System.out.print(game);
                     System.out.println(" Click at row: " + (highestId / rows) + " column: " + (highestId % rows));*/
@@ -105,6 +106,11 @@ public class NeatAI implements AIPlayer{
             }
 
             System.out.println("Gen " + gen + " average fitness " + (totalGenFitness / pop.organisms.size()));
+
+            /*if(gen == (GENERATIONS - 1)){
+                game = Windows7GameState.createIntermediateGame();
+                continue;
+            }*/
             
             epoch(gen);
         }

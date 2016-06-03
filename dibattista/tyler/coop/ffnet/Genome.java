@@ -175,7 +175,7 @@ public class Genome{
         boolean recurConfirm;
         boolean found = false;
 
-        int thresh = (allNeurons.size())*(allNeurons.size());
+        int thresh = (allNeurons.size()); //should be (allNeurons.size()*allNeurons.size())
 
         recur = ThreadLocalRandom.current().nextDouble() < RECUR_CHANCE;
         
