@@ -49,8 +49,12 @@ public class NativeGameState implements GameState {
 	}
 	
 	@Override
-	public void restart() {
+	public void restart(boolean newGame) {
 		initBoard();
+		if(newGame){
+			key = new int[key.length][key[0].length];
+			initialized = false;
+		}
 		this.flags = 0;
 		this.found = 0;
 		state = State.IN_PROGRESS;

@@ -169,7 +169,7 @@ public class Windows7GameState implements GameState {
 	}
 
 	@Override
-	public void restart() {
+	public void restart(boolean newGame) {
 		takeNap();
 		HWND hWnd = User32.INSTANCE.FindWindow(null, "Game Lost");
 		int[] r = {0,0,0,0};
@@ -179,8 +179,10 @@ public class Windows7GameState implements GameState {
 			mouseClick(r[0] + 250, r[1] + 240);
 		}else{
 			User32.INSTANCE.GetWindowRect(hWnd, r);
-			mouseClick(r[0] + 200, r[1] + 200); //Restart game
-			//mouseClick(r[0] + 350, r[1] + 200); //New game
+			if(newGame)
+				mouseClick(r[0] + 350, r[1] + 200); //New game
+			else
+				mouseClick(r[0] + 200, r[1] + 200); //Restart game
 		}
 		state = State.IN_PROGRESS;
 

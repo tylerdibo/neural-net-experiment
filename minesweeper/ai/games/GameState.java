@@ -26,6 +26,6 @@ public interface GameState extends BoardConfiguration {
 	/**
 	 * Restarts this GameState.  Note that the locations of the bombs are exactly the same on restart.
 	 */
-	public void restart();
+	public void restart(boolean newGame);
 
 }

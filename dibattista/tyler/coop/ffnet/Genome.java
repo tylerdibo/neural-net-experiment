@@ -175,7 +175,7 @@ public class Genome{
         boolean recurConfirm;
         boolean found = false;
 
-        int thresh = (allNeurons.size()); //should be (allNeurons.size()*allNeurons.size())
+        int thresh = (allNeurons.size()*8); //should be (allNeurons.size()*allNeurons.size())
 
         recur = ThreadLocalRandom.current().nextDouble() < RECUR_CHANCE;
         
@@ -196,6 +196,7 @@ public class Genome{
                             continue recurLoop;
                         }
                     }
+                    count = 0;
                     recurConfirm = isRecur(node1, node2, thresh);
                     if(recurConfirm) {
                         found = true;
@@ -350,51 +351,61 @@ public class Genome{
         Neuron newOut = null;
 
         boolean p1HasNext = true, p2HasNext = true;
+        boolean advanceP1 = false, advanceP2 = false;
 
-        while(p1HasNext || p2HasNext){
+        while(p1Iter.hasNext() || p2Iter.hasNext()){
             p1HasNext = p1Iter.hasNext();
             p2HasNext = p2Iter.hasNext();
+
+            if(advanceP1){
+                if(p1HasNext)
+                    p1conn = p1Iter.next();
+                advanceP1 = false;
+            }
+            if(advanceP2){
+                if(p2HasNext)
+                    p2conn = p2Iter.next();
+                advanceP2 = false;
+            }
 
             skip = false;
             
             if(!p1HasNext){
                 chosenGene = p2conn;
-                if(p2HasNext)
-                    p2conn = p2Iter.next();
+                advanceP2 = true;
                 if(p1Better)
                     skip = true;
             }else if(!p2HasNext){
                 chosenGene = p1conn;
-                if(p1HasNext)
-                    p1conn = p1Iter.next();
+                advanceP1 = true;
                 if(!p1Better)
                     skip = true;
             }else{
                 p1Innov = p1conn.innovationNum;
                 p2Innov = p2conn.innovationNum;
-                
+
                 if(p1Innov == p2Innov){
                     if(ThreadLocalRandom.current().nextBoolean()){
                         chosenGene = p1conn;
                     }else{
                         chosenGene = p2conn;
                     }
-                    
+
                     if(!p1conn.active || !p2conn.active){
                         if(ThreadLocalRandom.current().nextDouble() > 0.75)
                             disable = true;
                     }
-                    
-                    p1conn = p1Iter.next();
-                    p2conn = p2Iter.next();
+
+                    advanceP1 = true;
+                    advanceP2 = true;
                 }else if(p1Innov < p2Innov){
                     chosenGene = p1conn;
-                    p1conn = p1Iter.next();
+                    advanceP1 = true;
                     if(!p1Better)
                         skip = true;
                 }else{
                     chosenGene = p2conn;
-                    p2conn = p2Iter.next();
+                    advanceP2 = true;
                     if(p1Better)
                         skip = true;
                 }
@@ -488,25 +499,38 @@ public class Genome{
         Neuron newIn = null;
         Neuron newOut = null;
 
-        boolean p1HasNext = true, p2HasNext = true;
+        boolean p1HasNext, p2HasNext;
+        boolean advanceP1 = false, advanceP2 = false;
 
-        while(p1HasNext || p2HasNext){
+        while(p1Iter.hasNext() || p2Iter.hasNext()){
             p1HasNext = p1Iter.hasNext();
             p2HasNext = p2Iter.hasNext();
+
+            if(advanceP1){
+                if(p1HasNext)
+                    p1conn = p1Iter.next();
+                advanceP1 = false;
+            }
+            if(advanceP2){
+                if(p2HasNext)
+                    p2conn = p2Iter.next();
+                advanceP2 = false;
+            }
+
             avgConn.active = true;
 
             skip = false;
 
-            if(!p1HasNext){
+            if(!p1HasNext && !p2HasNext){
+                continue;
+            }else if(!p1HasNext){
                 chosenGene = p2conn;
-                if(p2HasNext)
-                    p2conn = p2Iter.next();
+                advanceP2 = true;
                 if(p1Better)
                     skip = true;
             }else if(!p2HasNext){
                 chosenGene = p1conn;
-                if(p1HasNext)
-                    p1conn = p1Iter.next();
+                advanceP1 = true;
                 if(!p1Better)
                     skip = true;
             }else{
@@ -541,17 +565,16 @@ public class Genome{
 
                     chosenGene = avgConn;
 
-                    //if()
-                    p1conn = p1Iter.next();
-                    p2conn = p2Iter.next();
+                    advanceP1 = true;
+                    advanceP2 = true;
                 }else if(p1Innov < p2Innov){
                     chosenGene = p1conn;
-                    p1conn = p1Iter.next();
+                    advanceP1 = true;
                     if(!p1Better)
                         skip = true;
                 }else{
                     chosenGene = p2conn;
-                    p2conn = p2Iter.next();
+                    advanceP2 = true;
                     if(p1Better)
                         skip = true;
                 }

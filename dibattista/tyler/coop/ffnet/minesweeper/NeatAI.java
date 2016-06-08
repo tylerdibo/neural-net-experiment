@@ -11,8 +11,8 @@ import java.util.ArrayList;
  * Created by Tyler on 22/05/2016.
  */
 public class NeatAI implements AIPlayer{
-    
-    static final int GENERATIONS = 999999;
+    //TODO: should implement file writing methods to be able to pause the program
+    static final int GENERATIONS = 100000;
 
     public Population pop;
     int numTiles, rows, columns;
@@ -31,7 +31,7 @@ public class NeatAI implements AIPlayer{
         for(int i = 0; i < numTiles; i++) {
             n = new Neuron(Neuron.NeuronTypes.OUTPUT, i+numTiles);
             g.addNeuron(n);
-            conn = new Connection(g.inputNeurons.get(i), n, 1.0, i + (numTiles*2), false, 1.0);
+            conn = new Connection(g.inputNeurons.get((i+1) % numTiles), n, 1.0, i + (numTiles*2), false, 1.0);
             n.addConnection(conn);
             g.links.add(conn);
         }
@@ -48,6 +48,7 @@ public class NeatAI implements AIPlayer{
         Genome genome;
         ArrayList<Double> outputs;
         double totalGenFitness;
+        double averageOf10 = 0;
 
         int iterCount = 0;
         for(int gen = 1; gen <= GENERATIONS; gen++){
@@ -84,9 +85,9 @@ public class NeatAI implements AIPlayer{
 
                     /*System.out.print(game);
                     System.out.println(" Click at row: " + (highestId / rows) + " column: " + (highestId % rows));*/
-
-                    o.genome.reset();
                 }
+
+                o.genome.reset();
 
                 o.fitness = (double) cellsCleared(inputs) * 10;
                 totalGenFitness += o.fitness;
@@ -102,17 +103,24 @@ public class NeatAI implements AIPlayer{
                     Thread.currentThread().interrupt();
                 }*/
 
-                game.restart();
+                game.restart(false);
             }
 
             System.out.println("Gen " + gen + " average fitness " + (totalGenFitness / pop.organisms.size()));
+            averageOf10 += (totalGenFitness / pop.organisms.size());
+            if(gen % 10 == 0){
+                System.out.println("Average of last 10 " + (averageOf10 / 10));
+                averageOf10 = 0;
+            }
 
-            /*if(gen == (GENERATIONS - 1)){
+            if(gen == (GENERATIONS - 1)){
                 game = Windows7GameState.createIntermediateGame();
                 continue;
-            }*/
+            }
             
             epoch(gen);
+
+            game.restart(true);
         }
     }
     
@@ -121,7 +129,7 @@ public class NeatAI implements AIPlayer{
             s.getAvgFitness();
             s.getMaxFitness();
         }
-        
+
         pop.epoch(gen);
     }
 

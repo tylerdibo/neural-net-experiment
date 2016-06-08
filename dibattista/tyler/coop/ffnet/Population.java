@@ -8,7 +8,7 @@ public class Population{
 
     private final static Logger LOGGER = Logger.getLogger(Population.class.getName());
 
-    static final double COMPAT_THRESHOLD = 3.0;
+    static final double COMPAT_THRESHOLD = 4.0;
     static final int DROPOFF_AGE = 15;
     public static final int POP_SIZE = 150; //150
     static final int BABIES_STOLEN = 0;
@@ -136,8 +136,8 @@ public class Population{
         ArrayList<Species> sortedSpecies = (ArrayList<Species>) species.clone();
         Collections.sort(sortedSpecies, new Comparator<Species>() {
             @Override
-            public int compare(Species o1, Species o2) {
-                return Double.compare(o2.organisms.get(0).originalFitness, o1.organisms.get(0).originalFitness);
+            public int compare(Species s1, Species s2) {
+                return Double.compare(s2.organisms.get(0).originalFitness, s1.organisms.get(0).originalFitness);
             }
         });
         

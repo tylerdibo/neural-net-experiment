@@ -46,7 +46,7 @@ public class Evaluators {
 			for(int p=0; p<players.length; p++) {
 				players[p].solve(game);
 				if(game.getState()==State.WIN) wins[p]++;
-				game.restart();
+				game.restart(false);
 				System.out.print("\t\t"+(int)(wins[p]*1000f/i)/1000f);
 			}
 			System.out.println();
@@ -69,7 +69,7 @@ public class Evaluators {
 			for(int p=0; p<players.length; p++) {
 				players[p].solve(game);
 				if(game.getState()==State.WIN) wins[p]++;
-				game.restart();
+				game.restart(false);
 			}
 		}
 		for(int w : wins) System.out.print("\t\t"+w);
@@ -81,7 +81,7 @@ public class Evaluators {
 			for(int p=0; p<players.length; p++) {
 				players[p].solve(game);
 				if(game.getState()==State.WIN) wins[p]++;
-				game.restart();
+				game.restart(false);
 			}
 		}
 		for(int w : wins) System.out.print("\t\t"+w);
@@ -93,7 +93,7 @@ public class Evaluators {
 			for(int p=0; p<players.length; p++) {
 				players[p].solve(game);
 				if(game.getState()==State.WIN) wins[p]++;
-				game.restart();
+				game.restart(false);
 			}
 		}
 		for(int w : wins) System.out.print("\t\t"+w);
