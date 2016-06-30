@@ -2,6 +2,7 @@ package dibattista.tyler.coop.ffnet;
 
 
 import dibattista.tyler.coop.ffnet.minesweeper.NeatAI;
+import dibattista.tyler.coop.ffnet.minesweeper.NeatAITest;
 import minesweeper.ai.games.GameState;
 import minesweeper.ai.games.NativeGameState;
 import minesweeper.ai.games.Windows7GameState;
@@ -18,7 +19,7 @@ public class NeatMain {
 
         GameState game = NativeGameState.createIntermediateGame();
 
-        NeatAI neat = new NeatAI(16, 16);
+        AIPlayer neat = new NeatAI(16, 16);
         neat.solve(game);
 
         System.out.println("Time elapsed in ns: " + (System.nanoTime()-startTime));

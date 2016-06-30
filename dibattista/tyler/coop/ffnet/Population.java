@@ -8,10 +8,11 @@ public class Population{
 
     private final static Logger LOGGER = Logger.getLogger(Population.class.getName());
 
-    static final double COMPAT_THRESHOLD = 4.0;
+    static double COMPAT_THRESHOLD = 4.0;
     static final int DROPOFF_AGE = 15;
     public static final int POP_SIZE = 150; //150
     static final int BABIES_STOLEN = 0;
+    static final int NUM_SPECIES_TARGET = 4;
     
     public List<Organism> organisms;
     public List<Innovation> innovations;
@@ -38,7 +39,7 @@ public class Population{
         Organism newOrganism;
         for(int i = 1; i <= size; i++){
             newGenome = g.deepClone(i);
-            newGenome.mConnectionWeights(1.0, 1.0, false);
+            newGenome.mConnectionWeights(1.0, 1.0, true);
             
             newOrganism = new Organism(0.0, newGenome, 1);
             organisms.add(newOrganism);
@@ -86,6 +87,17 @@ public class Population{
     }
 
     public void epoch(int gen){
+        double compatMod = 0.3;
+        if(gen > 1){
+            if(species.size() < NUM_SPECIES_TARGET)
+                COMPAT_THRESHOLD -= compatMod;
+            else if(species.size() > NUM_SPECIES_TARGET)
+                COMPAT_THRESHOLD += compatMod;
+
+            if(COMPAT_THRESHOLD < 0.3)
+                COMPAT_THRESHOLD = 0.3;
+        }
+
         double total = 0.0;
         double averageFitness;
         int totalOrganisms = organisms.size();
@@ -143,6 +155,7 @@ public class Population{
         
         Organism bestOrg = sortedSpecies.get(0).organisms.get(0);
         System.out.println("best fitness " + bestOrg.originalFitness);
+        //System.out.print(bestOrg.originalFitness + " ");
         Species bestSpec = sortedSpecies.get(0);
         
         if(bestOrg.originalFitness > highestFitness){
@@ -294,7 +307,7 @@ public class Population{
             }
         }
 
-        LOGGER.info("Epoch complete");
+        //LOGGER.info("Epoch complete");
 
         innovations.clear();
     }

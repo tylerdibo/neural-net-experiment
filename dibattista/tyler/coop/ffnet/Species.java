@@ -13,14 +13,14 @@ public class Species {
 
     static final int DROPOFF_AGE = 15;
     static final double AGE_SIGNIFICANCE = 1.0;
-    static final double MUTATE_ADD_LINK_PROB = 2.0;
-    static final double MUTATE_ADD_NODE_PROB = 0.7;
+    static final double MUTATE_ADD_LINK_PROB = 0.3;
+    static final double MUTATE_ADD_NODE_PROB = 0.1;
     static final double MUTATE_LINK_WEIGHTS_PROB = 0.9;
     static final double MUTATE_TOGGLE_ENABLE_PROB = 0.05;
-    static final double MUTATE_GENE_REENABLE_PROB = 0.01;
+    static final double MUTATE_GENE_REENABLE_PROB = 0.05;
     static final double WEIGHT_MUT_POWER = 2.5;
-    static final double MUTATE_ONLY_PROB = 0.25;
-    static final double INTERSPECIES_MATE_RATE = 0.001;
+    static final double MUTATE_ONLY_PROB = 0.3;
+    static final double INTERSPECIES_MATE_RATE = 0.01;
     static final double MATE_MULTIPOINT_PROB = 0.6;
     static final double MATE_MULTIPOINT_AVG_PROB = 0.4;
     static final double MATE_SINGLEPOINT_PROB = 0.0;
@@ -129,7 +129,7 @@ public class Species {
                         randSpeciesNum = (int) Math.floor((randMult*(sortedSpecies.size()-1.0))+0.5);
                         if(randSpeciesNum < 0)
                             randSpeciesNum = 0;
-                        System.out.println(randSpeciesNum + "randMult = " + randMult + "sortspec.size = " + sortedSpecies.size());
+                        //System.out.println(randSpeciesNum + "randMult = " + randMult + "sortspec.size = " + sortedSpecies.size());
                         randSpecies = sortedSpecies.get(randSpeciesNum);
                         giveUp++;
                     }

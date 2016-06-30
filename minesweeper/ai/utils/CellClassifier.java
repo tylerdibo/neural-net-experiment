@@ -41,6 +41,7 @@ public class CellClassifier {
 		return closeEnough(new Color(rgb1), new Color(rgb2));
 	}
 	private static boolean closeEnough(Color c1, Color c2) {
+
         int dr = c1.getRed() - c2.getRed();
         int dg = c1.getGreen() - c2.getGreen();
         int db = c1.getBlue() - c2.getBlue();

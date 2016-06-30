@@ -25,6 +25,7 @@ public interface GameState extends BoardConfiguration {
 	public State getState();
 	/**
 	 * Restarts this GameState.  Note that the locations of the bombs are exactly the same on restart.
+	 * @param newGame Set true to randomize mine locations again
 	 */
 	public void restart(boolean newGame);
 

@@ -12,8 +12,8 @@ public class Genome{
     static final int SMALL_GENOME_LIMIT = 15;
     static final double ADD_NEURON_OLD_BIAS = 0.3;
     static final double LOOP_RECUR_CHANCE = 0.5;
-    static final double RECUR_CHANCE = 0.5;
-    static final double MAX_NEW_CONNECTION_WEIGHT = 10.0;
+    static final double RECUR_CHANCE = 0.0;
+    static final double MAX_NEW_CONNECTION_WEIGHT = 1.0;
     static final double DISJOINT_COEFF = 1.0;
     static final double EXCESS_COEFF = 1.0;
     static final double MUTDIFF_COEFF = 0.4;
@@ -124,7 +124,7 @@ public class Genome{
             }
         }
         if(!found){
-            LOGGER.info("Open connection not found");
+            //LOGGER.info("Open connection not found");
             return;   
         }
 
@@ -175,8 +175,12 @@ public class Genome{
         boolean recurConfirm;
         boolean found = false;
 
-        int thresh = (allNeurons.size()*8); //should be (allNeurons.size()*allNeurons.size())
-
+        int thresh;
+        if(inputNeurons.size() > 150){
+            thresh = (allNeurons.size() * 8); //should be (allNeurons.size()*allNeurons.size())
+        }else{
+            thresh = (allNeurons.size() * allNeurons.size());
+        }
         recur = ThreadLocalRandom.current().nextDouble() < RECUR_CHANCE;
         
         if(recur){
@@ -228,7 +232,7 @@ public class Genome{
         }
         
         if (!found){
-            LOGGER.info("New connection not found.");
+            //LOGGER.info("New connection not found.");
             return;
         }
         
